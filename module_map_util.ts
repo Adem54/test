@@ -18,8 +18,7 @@ type LineString1 = Array<Point1>;
 type Point2 = Array<number>;
 type LineString2 = Array<Point2>;
 type Polygon = Array<LineString2>;
-//Problem...aLayer dan kaynaklaniyor
-//I will check the coordinates, because we change coordinates type after map method..
+
 interface Layer{
 	id:number,
 	name:string,
