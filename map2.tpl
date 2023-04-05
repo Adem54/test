@@ -22,6 +22,10 @@ background-color: gray;
 	class_mapLayer.createStylesForMapLayersFeature();
 	class_mapLayer.setStyleByCategory();
 
-	let sourceFromMapLayer = class_mapLayer.createSourceFromMapLayer();
+	//let sourceFromMapLayer = class_mapLayer.createSourceFromMapLayer();
 	//admin_road_plowing_map_layers.php plowing checked maplayers--operation-end
 	
+	//572-line-add in array new ol.Map({layers:[])
+	new ol.layer.Vector({ // Layer for the position.
+	source: class_mapLayer.createSourceFromMapLayer()
+}),
