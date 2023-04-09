@@ -23,16 +23,13 @@ interface Layer{
 	id:number,
 	name:string,
 	type:string,
-//	coordinates:(Point1 | LineString1 | Point2 | LineString2 | Polygon) ,
-	 coordinates:any,
+	coordinates:(Point1 | LineString1 | Point2 | LineString2 | Polygon) ,
+//	 coordinates:any,
 	category_id:number,
 	feature?:any
 }
 
-/*
-type GridRow = GridCell[]   //array of cells
-const grid: GridRow[] = []; //array of rows
-*/
+
 type MapLayer = Array<Layer>;
 //type MapLayer = Layer[];
 type MapLayers = Array<MapLayer>;
@@ -74,13 +71,11 @@ class module_map_layers {
 		return (sNewStr);
 	}
 
-	//parseMaplayer  - modifyMapLayerByFeatureFormat
-
 	modifyMapLayerByFeatureFormat(maplayers:MapLayers):MapLayers
 	{
 		maplayers = maplayers.map((aLayer:MapLayer)=>
 			{
-				aLayer = aLayer.map((oShape:Layer) => {
+				aLayer = aLayer.map((oShape:Layer | any) => {
 					let { type,coordinates,name } = oShape;
 		
 					if (type === "POINT")
