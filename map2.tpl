@@ -24,4 +24,4 @@ background-color: gray;
 
 	let sourceFromMapLayer = class_mapLayer.createSourceFromMapLayer();
 	//admin_road_plowing_map_layers.php plowing checked maplayers--operation-end
-	
+		
