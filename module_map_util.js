@@ -20,7 +20,9 @@ class module_map_layers {
 	//parseMaplayer  - modifyMapLayersByFeatureFormat
  
 	modifyMapLayersByFeatureFormat(maplayers) {
+		console.log("modifyMapLayersByFeatureFormat");
 	  maplayers = maplayers.map(aLayer => {
+			console.log("aLayer:",aLayer);
 		 aLayer = aLayer.map(oShape => {
 			let { type, coordinates, name } = oShape
  
@@ -49,6 +51,7 @@ class module_map_layers {
 			  }
 			}
 		 })
+		 console.log("aLayerrr:",aLayer);
 		 return aLayer
 	  })
  
