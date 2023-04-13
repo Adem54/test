@@ -2311,7 +2311,6 @@
 
 
 				function clusterStyle (clusterFeature) {
-			//	console.log("clusterStyle start");//cluster aktif oldugunda zoom-level a gore burasi surekli calisiyor dolayisi ile burda tum features lari donudurup setStyle i undefined cok mantikli bir is olmaz..zaten performans diye birsey kalmaz
 				if(Array.isArray(clusterFeature.get('features')))
 				{
 			//	console.log("clusterStyle has clusterFeature.get('features')");
@@ -2342,23 +2341,7 @@
 						});
 						
 						}
-					//	style = aStyleList;
-				//	console.log("selectedFeaturesKeys: ",selectedFeature.get("objectid"))
-
-			// Bunu kesinlikle calistirma bu cok agirlastiriyor mahvefiyor	
-		/*		classMap.vectorFlagSource.getFeatures().forEach(feature=>{
-						//console.log("getvectorFlagSourceKEYS: ",feature.getKeys());
-					//	console.log("feature: ",feature.get("objectid"))
-						if(selectedFeature.get("objectid") == feature.get("objectid"))
-						{
-							style = feature.getStyle();
-						
-						//	feature.setStyle(undefined); //..Bu patlatiyor bu sekilde olmaz
-							
-						}
-
-					}) */
-					//selectedFeature.setStyle(undefined); Bunu kullanirsak cluster icinde feature 1 olunca default yani bos bir point gosterir ama hic kullanmazsak style i hic gostermez... gostermek istemezsek hic kullanmayacagiz
+					
 					
 					}
 					else { 

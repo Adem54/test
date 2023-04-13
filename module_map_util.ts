@@ -9,59 +9,113 @@
 	
 	*/
 
-	declare var ol: any;
-	declare var feature: any;
-	declare var sourceFromMapLayer:any;
-	
-	type Point1 = Array<string>;
-	type LineString1 = Array<Point1>;
-	type Point2 = Array<number>;
-	type LineString2 = Array<Point2>;
-	type Polygon = Array<LineString2>;
-	//Problem...aLayer dan kaynaklaniyor
-	//I will check the coordinates, because we change coordinates type after map method..
-	type Coord = Point1 | LineString1 | Point2 | LineString2 | Polygon;
-	interface Layer{
-		id:number,
-		name:string,
-		type:string,
-		coordinates:Coord,
-		// coordinates:any,
-		category_id:number,
-		feature?:any
+declare var ol: any;
+declare var feature: any;
+declare var sourceFromMapLayer:any;
+
+type Point1 = Array<string>;
+type LineString1 = Array<Point1>;
+type Point2 = Array<number>;
+type LineString2 = Array<Point2>;
+type Polygon = Array<LineString2>;
+
+
+interface Layer{
+	id:number,
+	name:string,
+	type:string,
+	coordinates:(Point1 | LineString1 | Point2 | LineString2 | Polygon) ,
+//	 coordinates:any,
+	category_id:number,
+	feature?:any
+}
+
+
+type MapLayer = Array<Layer>;
+//type MapLayer = Layer[];
+type MapLayers = Array<MapLayer>;
+
+class module_map_layers {
+
+	//{id: 1, name: 'point-1', type: 'POINT', coordinates: Array(2), category_id: 1}
+	public mapLayer:MapLayer;
+	public mapLayers:MapLayers;
+
+
+	private aFeaturesFromMapLayers:any;
+	private g_defaultShapeStyle:any;
+	private lineRoadStyle:any;
+	private linePavementStyle:any;
+	private polygonPlowedAreaStyle:any;
+	private polygonPlowedAreaBorder:any;
+	private polygonLandfillAreaStyle:any;
+	private polygonLandfillAreaBorder:any;
+	private pointInfoStyle:any;
+	private pointDangerStyle:any;
+
+	constructor(maplayers:MapLayer[]){
+		this.mapLayers = maplayers;
 	}
-	
-	/*
-	type GridRow = GridCell[]   //array of cells
-	const grid: GridRow[] = []; //array of rows
-	*/
-	type MapLayer = Array<Layer>;
-	//type MapLayer = Layer[];
-	type MapLayers = Array<MapLayer>;
-	
-	class module_map_layers {
-	
-		//{id: 1, name: 'point-1', type: 'POINT', coordinates: Array(2), category_id: 1}
-		public mapLayer:MapLayer;
-		public mapLayers:MapLayers;
-	
-		private aFeaturesFromMapLayers:any;
-		private g_defaultShapeStyle:any;
-		private lineRoadStyle:any;
-		private linePavementStyle:any;
-		private polygonPlowedAreaStyle:any;
-		private polygonPlowedAreaBorder:any;
-		private polygonLandfillAreaStyle:any;
-		private polygonLandfillAreaBorder:any;
-		private pointInfoStyle:any;
-		private pointDangerStyle:any;
-	
-		constructor(maplayers:MapLayer[]){
-			console.log("constructor is working");
-			this.mapLayers = maplayers;
-		}
-	
-		 convertFromLonLat(aLonLat:any):any
+
+	 convertFromLonLat(aLonLat:any):any
+	{
+		let coordXY = ol.proj.transform(aLonLat, 'EPSG:4326', 'EPSG:3857');
+		let coordX = coordXY[0];
+		let coordY = coordXY[1];
+
+		return [coordX, coordY];
+	}
+
+	swapCommaFrom(sStr:any):any
+	{
+		let sNewStr = sStr.replace(/@@C/g, ',');
+		return (sNewStr);
+	}
+
+	modifyMapLayerByFeatureFormat(maplayers:MapLayers):MapLayers
+	{
+		maplayers = maplayers.map((aLayer:MapLayer)=>
+			{
+				aLayer = aLayer.map((oShape:Layer | any) => {
+					let { type,coordinates,name } = oShape;
+		
+					if (type === "POINT")
+					{
+						name = this.swapCommaFrom(name);
+						coordinates = this.convertFromLonLat(coordinates);
+						return { ...oShape,name,coordinates,type: "Point" };
+					}
+					else if (type === "LINESTRING")
+					{
+						name = this.swapCommaFrom(name);
+						coordinates = coordinates.map((aCoord) => {
+							aCoord = this.convertFromLonLat(aCoord);
+							return aCoord;
+						});
+						return { ...oShape,name,coordinates,type: "LineString" };
+					}
+					else if (type === "POLYGON")
+					{
+						name = this.swapCommaFrom(name);
+						coordinates = coordinates.map(aCoord => {
+							aCoord = this.convertFromLonLat(aCoord);
+							return aCoord;
+						});
+						return { ...oShape,name,coordinates:[coordinates],type: "Polygon" };
+					}
+				});
+				return aLayer;	
+			});
+		
+		return maplayers;
+	}
+
+	createFeaturesFromMapLayers():MapLayers
+	{
+		this.aFeaturesFromMapLayers = [];
+		//let aFeaturesTest = [];
+		let aMapLayers =this.modifyMapLayerByFeatureFormat(this.mapLayers);
+		aMapLayers = aMapLayers.map(aMapLayer=>
 		{
 			let coordXY = ol.proj.transform(aLonLat, 'EPSG:4326', 'EPSG:3857');
 			let coordX = coordXY[0];
