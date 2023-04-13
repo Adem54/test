@@ -1,6 +1,9 @@
+
 <link type="text/css" rel="stylesheet" href="css/map.css" />
+<link rel="stylesheet" href="../web/scripts/dist/ol-ext.min.css">
 <script src="js/map_gps.js?v={{@version_js}}"></script>
 <!--script src="modules/module_websocket.js"></script-->
+<script src="../web/scripts/dist/ol-ext.min.js"></script>
 <script src="modules/module_map_util.js"></script>
 
 
@@ -634,6 +637,7 @@
 				new ol.layer.Vector({
 					source: polygonSource, // Layer for the areas
 				//	maxResolution: 30
+				zIndex:2
 				}),
 			/*	new ol.layer.Vector({ // Layer for the flags.
 					source: classMap.vectorFlagSource,
@@ -660,9 +664,6 @@
 			view: classMap.view
 		});
 
-	
-		
-		
 		classMap.overlayAreaName.setMap(classMap.map);
 
 		// display popup on click
@@ -680,7 +681,7 @@
 		});
 		classMap.map.addOverlay(classMap.popup);
 		//classMap.popup.setMap(classMap.map);
-
+		
 		classMap.map.on('click', mapClick);
 
 		// Changeing resolution, change the icon size.
@@ -2230,12 +2231,6 @@
 			// Pull all the flags onto the map.
 			classMap.vectorFlagSource.addFeatures(classMap.iconFeatureList);
 			classMap.clusterVectorFlagSource.addFeatures(classMap.iconFeatureListWithoutStyle);
-		
-		/*	
-			classMap.vectorFlagSource.getFeatures().forEach(feature=>{
-				console.log("getvectorFlagSourceKEYS: ",feature.getKeys());
-			}) */
-		//	console.log(classMap.vectorFlagSource.getFeatures().length)
 
 			classMap.clusterForVectorFlagSource = new ol.source.Cluster({
 				name:"clusterForVectorFlagSource",
@@ -2292,20 +2287,27 @@
 
 			
 			const styleCache = {};
-			
-			 classMap.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
+			//var animatedCluster = ol.layer.AnimatedCluster({
+	//		 classMap.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
+			classMap.clusterFlagLayer =new ol.layer.AnimatedCluster({
 					//source: arrangeClusterByZoomLevel(), //617.satrrdaki classMap.map.getView().on() ile resolution degismesinde tetiklenen eventi yorum satiri yapmadan once burasi calisiyordu
 					source: classMap.clusterForVectorFlagSource,//
 					
 				//	source:classMap.vectorFlagSource,
 				//	maxResolution: 20,
-					style: clusterStyle
+					style: clusterStyle,
+					animationDuration:1000,
+					zIndex:1
 					
 				});
 
 			 classMap.vectorFlagLayer = new ol.layer.Vector({
 				source: classMap.vectorFlagSource,
+				name:"vectorFlagLayer",
+				zIndex:10
 				})	
+			
+			console.log("vectorFlagLayer-name: ", classMap.vectorFlagLayer.get("name"));	
 
 
 				function clusterStyle (clusterFeature) {
@@ -2390,11 +2392,10 @@
 					
 			}
 
-
-
 			classMap.map.on("click", (e)=>{
 				console.log("event-coordinate: ", e.coordinate);
 				classMap.clusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => {
+				console.log("clickedFeatures: ",clickedFeatures);
 				if (clickedFeatures.length) {
 				  // Get clustered Coordinates
 				  const features = clickedFeatures[0].get('features');
@@ -2411,7 +2412,7 @@
 						const extent = ol.extent.boundingExtent(
 						features.map((r) => r.getGeometry().getCoordinates())
 						);
-						classMap.map.getView().fit(extent, {duration: 3500, padding: [100, 100, 100, 100]});
+						classMap.map.getView().fit(extent, {duration: 1500, padding: [100, 100, 100, 100]});
 					}
 					
 				} 
@@ -2420,6 +2421,13 @@
 			})
 
 	
+			classMap.clusterFlagLayer.on('click', function(event) {
+			var features = event.feature.get('features');
+			if (features.length > 1) {
+			  // Display the overlay popup
+			  classMap.popup.setPosition(event.coordinate);
+			}
+		 });
 			
 			//vectorFlagLayer
 			console.log("zoom-level: ",classMap.map.getView().getZoom());
