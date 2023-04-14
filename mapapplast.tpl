@@ -246,7 +246,7 @@ var g_classMapClass = new function()
 		zIndex: 10
 	});
 	
-	//
+	//Burasi map uzerinde herhangi bir feeature a tiklayinca yani her bir point-feature asloinda her bir musteri yani hytte-sahibi veya kullanicisidir ve bunlarin uzerine tiklaninca bunlara ait bilgileri aliyoruz ama polygon-alanlara tiklayinca o alanlarin ismini aliyoruz ki zaten map.tpl de de search kutucugunda da polygon alanlari listeleniyor hangi area-option u secersek sadece o alan i farkli style ile bize gosteriyor ve ayrica da tabi ki leverndør un musterisi-hyttesahibi ni de veya hytte yi de arama yapbiliyoruz...Overlay islemi - openlayers da popup-overlay islemi burda yapiliyor.
 	// When click on the map.
 	this.mapClick = (evt) => 
 	{
@@ -295,7 +295,7 @@ var g_classMapClass = new function()
 		return (this.m_iUpdateFleetInterval);
 	};
 
-	//
+	//Bu da son kullanici hytte-sahiplerinin aldigi hizmete gore, farkli style ve farkli iconlarla gosteriliyor hytte ler-yani pointler..Object demek her bir hytte veya musteri veya hyttesahibi gibi de dusunebiliriz
 	// Return the iconstyle
 	this.getIconStyle = (iObjectTypeId, sValueType, sServicevalue, iconScale, iRotation, sContinues, sStatus, iObjectType) =>
 	{
@@ -613,6 +613,7 @@ var g_classMapClass = new function()
 		return (iconStyle);
 	};
 	
+	//Bu da buyuk ihtimalle yine renk-korlerine yonelik renklendirme ayarlaniyor zannedersem
 	this.create_textstyle_colorblind = (charToShow) =>
 	{
 		let textStyle = null;
@@ -706,7 +707,7 @@ var g_classMapClass = new function()
 		}
 		return (oTextStyle);
 	};
-
+//Bu da brøytebil soforlerinin vardigi zaman ki style de gerceklesek degisklik icin yapiliyor
 	this.create_textstyle_arrival = (sArrivalTime) =>
 	{
 		let textCh = "";
@@ -949,6 +950,12 @@ var g_classMapClass = new function()
 		return (iconStyle);
 	};
 	
+
+	//YUKARDAN BURAYA KADAR GENEL OLARAK BIR OVERLAY ISLEMI BIR DE HYTTE-EIER INE VERILEN HIZMETE VE HYTTE NIN TYPE INA GORE OPENLAYERS-STYLE AYARLAMALARI YAPILDI
+
+
+	//FEATURE OLUSTURMA METHODU YAZILMIS BURDA BU METHOD NERDE KULLANILIYOR O COK ONEMLI
+	//ve BURDA DA HER BIR FEATURE OBJECT_STATUS UNA GORE OLUSTURULUYOR VE PARAMETRYE GELEN OBJECT ILE POINT GEOMETRISIN OLUSTURULYOR YANI COORDINATES YA DA LONG-LAT PARAMETREYE GELEN oObject den geliyor
 	this.createMapFeature = (iObjectId, oObject) =>
 	{
 		let iconFeature = null;
@@ -1221,8 +1228,13 @@ var g_classMapClass = new function()
 		}
 		return (iconFeature);
 	};
+
+	//955-1230 CREATE-FEATURE FUNCTION - this.createMapFeature
+	//958 DEN BURAYA KADAR ISE FEATURE OLUSTURMA METODU VAR VE ICERISINDE BIR SURU LOGIC LER VAR O LOGIC LERE GORE FEATURE LAR OLUSTURULYOR VE DAHA ONCDEN OLUSTURLMUS OLAN STYLE-ICON OLUSTURMA METHODLARI DA TABI ICERDE KULLANILIYOR AYRICA DA PARAMETREYE 2.PARAMETREYE GELEN OBJECT COK KRITITK TUM DATA ONUN ICINDEN GELIYOR BU FEATURE OLUSTURMA METHODU NERDE  INVOKE EDILIYOR BU COKONEMLI 
 	
-	//
+	//BURDA FEATURE LER DEGISTIRILIYOR VEYA TAKAS EDILIYOR-BUNU TAM BILMIYORUM BURDA BIR INTERAKTIFLIK VAR AMA BURDA BIZI SU ANDA ASIL ILGILENDIREN BU METHOD NERDE INVOKE EDILIYOR VE PARAMETRESINDE AOBJECTIDLIST DATASI VAR BU COK ONEMLI BU DATA NERDEN GELIOYR...BUNU OGRENMEK GEREK.. 
+
+	//this.swapFeature NERDE CALISIYOR VE NE DURUMDA CALISIYOR BU COK OJNEMLI CUNKU this.m_aFlags ICERISINDE BIR UPDAE ISLEMI GERCEKLESIYOR OZELLIKLE SWAPFEATURE VE CREATEMAPFEATURE E BAKALIM CUNKU SWAPFEATURE ICINDE INVOKE EDILIYOR
 	// Swaps the feature from the featurelist.
 	this.swapFeature = (aObjectIdList, sOrderStatus, bExtraData, oExtraData) =>
 	{
@@ -1309,7 +1321,17 @@ var g_classMapClass = new function()
 			});
 		}
 	};
+
+	//this.swapFeature  1238-1324 E KADAR SURUYOR
 	
+	//ISTE BURASI DA YINE COK KRITIK NOKTALARDAN BIR TANESI.. CUNKU PARAMETRESINDE DIREK AOBJECTLIST VAR VE BU FLAGLAYER YANI FEATURE LARI HYTTE LERDEN VEYA MUSTERILERDDN OLUSAN LAYER IMIZDIR VE BIIZM UZERINDE ISLEM YAPACAGIMZ LAYER DE FLAGLAYER VE PARAMETRTEYE ALINAN DATA BIZIM ICIN COK ONEMLI OLAN AOBJECTLIST YANI HYTTE-VEYA HYTTESAHIPLERI YA DA SON KULLANICI DATASIDIR
+	//BU METHDOD UPDATEFLAGLAYER METHODUDUR BIZ BURDAN SUNU ANLIYORUZ BURASI UPDATEFLAGLAYER OLDUGU ICIN VE ICERISINDE DE VECTORFLAGSOURCE.GETFEATURES() DEN FLAGLAYER SOURCE FEATURE LERINE ERISIP HER BIR FEATURE ICINDEKI DATALAR KULLANILDIGINA GORE DEMEKKI BU METHOD FLAGLAYER OLUSTUKTAN SONRA KULLANILACAK VEYA CALL-INVOKE EDILECEK
+
+	//PARAMETREYE GELEN AOBJECTLIST ILE FLAGLAYER-SOURCE-FEATURES ICINDEKI DATALAR KARSILASTIRILARAK BIRBIRINE DENK OLAN DATALAR BULUNARAK.. UPDATE ISLEMLERI YAPILIYR
+
+	//ARADIGIMZ TUM FLAGLAYER ICINDEKI ASLINDA DATALAR IN GELDIGI YER OLAN classMap.aFlags idi map.tpl de burda da ayni data this.m_aFlags dir ve bu datayanin icerigi update ediliyor burda cunku flagLayer source-features lerin data kaynagi this.m_aFlags dir zannedersem cunku map.tpl de bu sekilde idi
+	//O zaman demekki biz this.m_aFlags bu data nerden geliyor bu sayfaya hangi kaynaktan bu sayfaya geliyor onu bilmemiz cok onemli.... 
+
 	this.updateFlagLayer = (aObjectList) =>
 	{
 		try
@@ -1360,8 +1382,13 @@ var g_classMapClass = new function()
 		}
 		return;
 	};
+
+	// 1334- 1385  arasi  this.updateFlagLayer = (aObjectList)
+	//BU ISLEM COOOK ONEMLI... 
 	
-	//
+	//HAHHH ASIL ISLEMIMIZ ISTE BURDA THIS.CREATEFLAGLAYER
+	//parametreye aObjectList aliyor yani this.m_aFlags invoke edilirken verilmesini bekliyoruz 
+
 	// Create the flag layer.
 	this.createFlagLayer = (aObjectList) =>
 	{
@@ -1381,7 +1408,6 @@ var g_classMapClass = new function()
 				if (iconFeature!==false)
 				{
 					iconFeature.setId(i);
-
 					// Update the list.
 					iconFeatureList.push(iconFeature);
 					i++;
@@ -1402,12 +1428,9 @@ var g_classMapClass = new function()
 					}else{
 					//cluster uygulandiginda default features larin kendi style lari kaldirilsin
 				
-						return feature.getGeometry();
-						
-					}
-					
+						return feature.getGeometry();						
+					}					
 				},
-				
 			})
 			
 
@@ -1428,157 +1451,30 @@ var g_classMapClass = new function()
 					if (!style) 
 					{
 
-					style =  new ol.style.Style({
-					image: new ol.style.Circle({
-					radius: 10,
-					stroke: new ol.style.Stroke({
-						color: '#fff',
-					}),
-					fill: new ol.style.Fill({
-						color: '#3399CC',
-					}),
-					}),
-					text: new ol.style.Text({
-					text: size.toString(),
-					fill: new ol.style.Fill({
-						color: '#fff',
-					}),
-					}),
-				});
+						style =  new ol.style.Style({
+							image: new ol.style.Circle({
+							radius: 10,
+								stroke: new ol.style.Stroke({
+									color: '#fff',
+								}),
+								fill: new ol.style.Fill({
+									color: '#3399CC',
+								}),
+							}),
+							text: new ol.style.Text({
+							text: size.toString(),
+								fill: new ol.style.Fill({
+									color: '#fff',
+								}),
+							}),
+						});
 					
 					}
 				}
 			
 			}
 
-		/*	this.clusterStyle = (clusterFeature) {
-				if(Array.isArray(clusterFeature.get('features')))
-				{
-			//	console.log("clusterStyle has clusterFeature.get('features')");
-
-						const size = clusterFeature.get('features').length;
-						let style = styleCache[size];
-
-					
-					var selectedFeature = clusterFeature.get('features')[0];
-
-						if (!style) {
-						if(size > 300)	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 10,
-							stroke: new ol.style.Stroke({
-								color: '#fff',
-							}),
-							fill: new ol.style.Fill({
-								color: '#3399CC',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							fill: new ol.style.Fill({
-								color: '#fff',
-							}),
-							}),
-						});
-						styleCache[size] = style;
-						}
-					
-
-					
-					return style;
-				}
-					
-			} */
-
-	/*		this.clusterForVectorFlagSource = new ol.source.Cluster({
-				name:"clusterForVectorFlagSource",
-				distance:50,
-				//minDistance:parseInt(20,10),
-				source:this.m_vectorFlagSource,
-				geometryFunction: function(feature) {
-					// use the feature's geometry as the clustering geometry
-				//	console.log("feature-cluster: ",feature.get("count"));
-				//zoomlevel 15 ustunde cluster i uygulama diyoruz
-					if (this.this.m_oMap.getView().getZoom() > 16){
-						return null;
-					}else{
-					//cluster uygulandiginda default features larin kendi style lari kaldirilsin
-				
-						return feature.getGeometry();
-						
-					}
-					
-				},
-				
-			})
-
-
-			function arrangeClusterByZoomLevel()
-			{
-				console.log("arrangeClusterByZoomLevel");
-				let source = null;
-				if(this.m_oMap.getView().getZoom() < 16)
-				{
-					source = classMap.clusterForVectorFlagSource
-			
-				}else {
-				
-					source = this.m_vectorFlagSource
-				}
-				return source;
-			} 
-
 		
-
-			var clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
-				source: arrangeClusterByZoomLevel(), 
-				style: clusterStyle
-			});
-
-		const styleCache = {};
-
-			function clusterStyle (clusterFeature) {
-				if(Array.isArray(clusterFeature.get('features')))
-				{
-			//	console.log("clusterStyle has clusterFeature.get('features')");
-
-						const size = clusterFeature.get('features').length;
-						let style = styleCache[size];
-
-					
-					var selectedFeature = clusterFeature.get('features')[0];
-
-						if (!style) {
-						if(size > 300)	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 10,
-							stroke: new ol.style.Stroke({
-								color: '#fff',
-							}),
-							fill: new ol.style.Fill({
-								color: '#3399CC',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							fill: new ol.style.Fill({
-								color: '#fff',
-							}),
-							}),
-						});
-						
-						}
-					
-
-					styleCache[size] = style;
-					return style;
-				}
-					
-			} */
 		}
 		catch (e)
 		{
@@ -1588,7 +1484,8 @@ var g_classMapClass = new function()
 		return (true);
 	};
 
-	//
+	//1391- 1616 ARASINDA this.createFlagLayer methodu kullaniliyor
+
 	// Create the map.
 	this.createMap = (crd, sName) =>
 	{
@@ -1607,6 +1504,7 @@ var g_classMapClass = new function()
 			})
 		});
 
+		//DIKKAT EDELIM..ONCE POLYGONLARI OLUSTURUYOR... YANI HIZMET VERILEN ALANLARI OLUSTURUYOR
 		// Create array of all the features / polygons.
 		for (let i=0; i<this.m_aServiceAreas.length; i++)
 		{
@@ -1637,6 +1535,7 @@ var g_classMapClass = new function()
 				feature: oFeature
 			});
 		}
+		//POLYGON AFEATURELIST I OLUSTRUDUKTAN SONRA ARTIK POLYGON FEATURE LARINDAN OLUSAN POLYGON SOURCE YI OLUSTURUYOR
 		let polygonSource = new ol.source.Vector({
 			features: aFeatureList
 		});
@@ -1655,15 +1554,21 @@ var g_classMapClass = new function()
 			preload: 3
 		});
 		
+		//POLYGONLAYER I POLYGON-SOURCE DEN OLUSTURUYOR
 		this.m_oAreaLayer = new ol.layer.Vector({
 			source: polygonSource, // Layer for the areas
 			maxResolution: 20
 		});
 		
+		//ISTE BURASI COOK ONEMLI... FLAG-LAYER- YANI HYTTE LERIN BULUNDUGU NOKTALARI SPESIFIK ICON-FLAG-VS STYLE ILE GOSTEREN POINT-FEATURES LERDEN OLUSUYOR AMA DATA NASIL OLUSUYOR THIS.M_VECTORFLAGSOURCE YI YAKINDAN INCELEYELIM... 
 		this.m_oFlagLayer = new ol.layer.Vector({ // Layer for the flags.
 			source: this.m_vectorFlagSource,
 			maxResolution: 20
 		}); 
+
+		//BURDA BIR INCELELEYLIMMM... FEATURES VAR MI ICERISINDE BURDA BIZ BOS GELMESINI BEKLIYUORUZ...AMA INCELEYELIM..CUNKU CREATEMAP FONKSIYONU INVOKE EDILIYOR VE TUM ISLEM BU INVOKE ILE OLUYOR VE BURAYA KADAR CREATEFLAGLAYER-HIC INVOKE EDILMEDI HENUZ
+	  console.log("flaglayerfeatures-count: ", this.m_vectorFlagSource.getFeatures().length);
+	  //burda eger features.lengt 0 degil ise demekki source olusturulmus buraya gelene kadar
 		
 		this.m_oMyPosLayer =	new ol.layer.Vector({ // Layer for the position.
 			source: this.m_vectorPositonSource,
@@ -1676,12 +1581,13 @@ var g_classMapClass = new function()
 		});
 		
 		
-		
 		g_overlayAreaName = new ol.Overlay({
 			element: document.getElementById('areaname'),
 			positioning: 'bottom-left'
 		});
 
+		//MAP OLUSTURUYOR BURDA... LAYER OLARAK DA YUKARDA OLUSTURULAN LAYERLAR VERILIYOR VE BU LAYERLARDAN FLAG LAYER ICERISINDE FEATURES LAR HENUZ HIC OLUSTURULAN BIR METHOD INVOKE  EDILMEDI CREATEMAP METHODUNUN BASINDAN BERI....BUNU CHECK EDELIM BURAYA FLAGLAYER ICINDE FEATURE ILE MI GELIYOR....YOK SA FEATURE SUZ MU...BIZ FEATURESIZ BEKLIYORUZ
+		
 		// Set the global map at the same time, to use in static functions.
 		this.m_oMap = new ol.Map({
 			layers: [ this.m_oMapLayer, this.m_oAreaLayer, this.m_oFlagLayer, this.m_oMyPosLayer, this.m_oLayerFromMapLayerModule ],
@@ -1742,7 +1648,17 @@ var g_classMapClass = new function()
 		}*/		
 
 
+		//ISTE CREATEFLAGLAYER LARIN INVOKE EDILMESI TOPLAM 4 YERDE OLUYOR VE BUNLARIN HEPSIDE CHANGE-RESOLUTION EVENTI TETIKLENMESI SONUCUNDA GERCEKLESIYOR...BURAYI COK IYI INCELEYUELIM.... 
+		//this.createMapFeature createFlagLayer-updateFlagLayer-swapFlagLayer icinde calistiriliyor... dikkat edlim....bunlar hep this.m_aFlags datasini kullaniyorlar
+
+		//createFlagLayer-updateFlagLayer-swapFlagLayer bu fonksiyonlarin baslangicina console.log ile isimlerini yazalim ve ilk defa map_app.tpl gelirken hangileri invoke edilerek gelioyr bunu check edlim....ONEMLI.....??????????????????
 		
+
+		//BASKA BIR SORU BURADA THIS.M_AFLAGS DATASI DOLU MU GELIYOR BUNU BIR CHECK EDELIM... BU COK ONEMLI...GELIYORSA NERDEN GELIYOR BUNU BULALIM... 
+		//BURASI THIS.CREATEMAP FONKSIYONUDUR ONUN ICINDE GERCEKLESIYOR BU ISLEMLER
+
+		console.log("this.m_aFlags: ", this.m_aFlags);
+
 		// Changeing resolution, change the icon size.
 		this.m_oMap.getView().on('change:resolution', (evt) =>
 		{
@@ -1784,6 +1700,15 @@ var g_classMapClass = new function()
 		// Set the map created flag.
 		this.bMapCreated = true;
 	};
+
+//THIS.CREATEMAP FONKSIYONU  BITIYOR BURDA...THIS=>g_classMap 
+
+	//BIZIM ISIMIZ BURAYA KADAR SIMDILIK VE BURAYA KADAR INCELEYELIM......COOOK ONEMLI... ASAGI ILE SIMDILIK VAKIT KAYBETMEYELIM ORALARLA ILGILI ISLEM YAPACAGIMZ ZAMAN BAKARIZ ORALARA....
+
+	//ASAGI TARAFTA KALAN COOK ONEMLI BIR KISIM VAR ORAYI KACIRMAYALIM
+//2272-2290 ARASI SAYFA YUKLENIR YUKLENMEZ CALISAN VE MAP VE ICINDEKI TUM OZELLIKLERI OUSTURAN KISIMDIR
+// g_classMapClass.createMap(coord, sName); --cok onemli bir invoke islemidir bizim icin---
+
 	
 	//
 	// Return the current logposition.
@@ -2235,8 +2160,15 @@ var g_classMapClass = new function()
 	};
 };
 
+//sayfa olusturulur olusturulmaz sayfa yuklenir yuklenmez calistir demektir bu... 
+//g_classMapClass ozellikle bu obje  methodlarindan hangileri invoke edilmis onu inceleyelimm......COOK ONEMLI...TAM ANLAMAK ICIN BU OBJENIN HANGI METHODLARI SAYFA ILK GELIRKEN CALISIYOR HANGI DATALAR NERDEN GELIYOR BUNLARI IYICE ANLAYALIM.....
+
 $(document).ready(function()
 {
+//BU ARADA HER LEVERANDORE AIT MERKEZI BIR KOORDINATE DATASI GELMIS YANI BULUNDUKLARI ALANIN MERKEZI OLARAK BOYEL BIR DATA GELMIS BUNU BIZ KULLANABILIRIZ CLUSTER ISLEMINDE COOOK ONEMLI..YANI EN SON ZOOM in yapinca tum features leri bir yuvarlak icinde sayi olarak gosterirken spesifik bir alanda gostermek icin kulllanabiliriz ve bu datlar da yine map/class_map_app.php den geliyor
+/*// The initial center point.
+var g_dCENTER_LONGITUDE = {{@longitude}};
+var g_dCENTER_LATITUDE = {{@latitude}};*/
 	let coord = { longitude: g_dCENTER_LONGITUDE, latitude: g_dCENTER_LATITUDE };
 	let sName = "";
 
@@ -2248,10 +2180,16 @@ $(document).ready(function()
 
 	// Convert to javascript object.
 	g_classMapClass.m_aServiceAreas = JSON.parse('{{@service_areas}}');
-	
+//ISTE SORDUGUMUZ SORUNUN CEVABI BU MAP_APP.TPL DE AJAX VS KULLANILMIYOR BURAYA DATA map/class_map_app.php den gelior datalar burdan geliyor ve map_app.php ise tum php dosyalarinin oldugu yerde webview_map.php icerisinde calisiyor
+
+
+	//OLAYIN MANTIGI SU SEKILDE SADECE G_CLASSMAPCLASS.CREATEMAP(COORD,SNAME) ILE INVOKE EDILIYOR VE ZATEN CREATEMAP ICERISINDE TUM FEATURES,LAYERS, STYLE S FONKSIYONLARI INVOKE EDILDIGI ICIN HEPSI OLUSTURULMUS OLUYOR ASLINDA...ISTE ONLARIN HEPSININ OLUSTURULMASINI SAGLAYAN INVOKE ISLEMI TAM DA BUDUR...COOOOK ONEMLI...
 	// Create the map.
 	g_classMapClass.createMap(coord, sName);
 });
+
+//2272-2290 ARASI SAYFA YUKLENIR YUKLENMEZ CALISAN VE MAP VE ICINDEKI TUM OZELLIKLERI OUSTURAN KISIMDIR
+// g_classMapClass.createMap(coord, sName); --cok onemli bir invoke islemidir bizim icin---
 
 //
 // Turn off Pan and Trackmode.
