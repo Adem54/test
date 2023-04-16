@@ -401,7 +401,8 @@
 			//	name:"clusterForVectorFlagSource",
 				distance:250,
 				//minDistance:parseInt(20,10),
-				source:classMap.clusterFlagSource,
+			//	source:classMap.clusterFlagSource,
+				source:classMap.vectorFlagSource,
 			/*	geometryFunction: function(feature) {
 					//don't apply to cluster over 16-zoom-level
 					if (classMap.map.getView().getZoom() > 16){
