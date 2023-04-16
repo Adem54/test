@@ -628,6 +628,7 @@ var g_classMapClass = new function()
 			case ICON_SIZE_NORMAL:
 				iOffsetY = -17;
 				iOffsetX = 27;
+		
 				iFontSize = 16;
 				break;
 
@@ -644,6 +645,7 @@ var g_classMapClass = new function()
 				break;
 		}
 
+	
 		if (iFontSize>0)
 		{
 			textStyle = new ol.style.Style({
@@ -934,6 +936,7 @@ var g_classMapClass = new function()
 	
 	this.create_iconstyle = (sImage) =>
 	{
+	
 		let iconStyle = new ol.style.Style({
 			image: new ol.style.Icon({
 				anchor: [0.5, 35],
@@ -955,6 +958,7 @@ var g_classMapClass = new function()
 		let bSkip = false;
 		let sArrivalTime = ""; // Default value.
 		let iconScale = this.m_iFlagSize;
+	
 		let iRotation = 0; //(iNumOrders * 0.3) - 0.3;
 		
 		if (parseFloat(oObject.ln) <= 0 && parseFloat(oObject.lt) <= 0)
@@ -1414,8 +1418,6 @@ var g_classMapClass = new function()
 			console.log("this.createFlagLayer -  this.clusterForVectorFlagSource.LENGTH: ");
 			console.log("this.createFlagLayer -  this.clusterForVectorFlagSource.LENGTH: ",this.clusterForVectorFlagSource.getSource().getFeatures().length);
 
-			
-		
 			console.log("this.clusterForVectorFlagSource-RIGHT BEFORE-CLUSTERFLAGLAYER-CREATE:");
 			console.log(this.clusterForVectorFlagSource?.getSource()?.getFeatures()?.length);
 	/*		
@@ -1672,11 +1674,8 @@ var g_classMapClass = new function()
 		}); 
 
 		
-	
-
 		console.log("this.createMap - flaglayerfeatures-count: ", this.m_vectorFlagSource.getFeatures().length);
 		
-
 		this.m_oMyPosLayer =	new ol.layer.Vector({ // Layer for the position.
 			source: this.m_vectorPositonSource,
 			maxResolution: 20
@@ -1782,16 +1781,19 @@ var g_classMapClass = new function()
 				this.m_iFlagSize = ICON_SIZE_LARGE;
 				this.createFlagLayer(this.m_aFlags);
 			}
-			else if (this.m_iZoom >= 16 && this.m_iZoom < 18)
+			else if (this.m_iZoom >= 16.5 && this.m_iZoom < 18)
 			{
 			console.log("this.m_iZoom >= 16 && this.m_iZoom < 18")
 				this.m_iFlagSize = ICON_SIZE_NORMAL;
+				console.log("this.m_iFlagSize-RIGHTBEFORE-THIS.CREATEFLAGlAYER:---------  ",this.m_iFlagSize);
 				this.createFlagLayer(this.m_aFlags);
 			}
-			else if (this.m_iZoom < 16)
+			else if (this.m_iZoom < 16.5)
 			{
 				console.log("this.m_iZoom < 16")
+				
 				this.m_iFlagSize = ICON_SIZE_SMALL;
+			//	this.m_iFlagSize = .8;
 				this.createFlagLayer(this.m_aFlags);
 			} 
 
