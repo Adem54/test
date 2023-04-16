@@ -628,6 +628,7 @@ var g_classMapClass = new function()
 			case ICON_SIZE_NORMAL:
 				iOffsetY = -17;
 				iOffsetX = 27;
+		
 				iFontSize = 16;
 				break;
 
@@ -644,6 +645,7 @@ var g_classMapClass = new function()
 				break;
 		}
 
+	
 		if (iFontSize>0)
 		{
 			textStyle = new ol.style.Style({
@@ -934,6 +936,7 @@ var g_classMapClass = new function()
 	
 	this.create_iconstyle = (sImage) =>
 	{
+	
 		let iconStyle = new ol.style.Style({
 			image: new ol.style.Icon({
 				anchor: [0.5, 35],
@@ -955,6 +958,7 @@ var g_classMapClass = new function()
 		let bSkip = false;
 		let sArrivalTime = ""; // Default value.
 		let iconScale = this.m_iFlagSize;
+	
 		let iRotation = 0; //(iNumOrders * 0.3) - 0.3;
 		
 		if (parseFloat(oObject.ln) <= 0 && parseFloat(oObject.lt) <= 0)
@@ -1392,7 +1396,7 @@ var g_classMapClass = new function()
 		this.m_vectorFlagSource.addFeatures(iconFeatureList);
 		console.log("this.createFlagLayer- m_oFlagLayerSource-Features-length: ",this.m_vectorFlagSource.getFeatures().length);	
 
-			this.clusterForVectorFlagSource = new ol.source.Cluster({
+		/*	this.clusterForVectorFlagSource = new ol.source.Cluster({
 				name:"clusterForVectorFlagSource",
 				distance:50,
 				
@@ -1410,23 +1414,22 @@ var g_classMapClass = new function()
 					
 				} , */
 				
-			})
+		//	}) 
 			console.log("this.createFlagLayer -  this.clusterForVectorFlagSource.LENGTH: ");
 			console.log("this.createFlagLayer -  this.clusterForVectorFlagSource.LENGTH: ",this.clusterForVectorFlagSource.getSource().getFeatures().length);
 
-			
-		
 			console.log("this.clusterForVectorFlagSource-RIGHT BEFORE-CLUSTERFLAGLAYER-CREATE:");
 			console.log(this.clusterForVectorFlagSource?.getSource()?.getFeatures()?.length);
-			
+	/*		
 			if(this.m_oMap.getView().getZoom() < 16)
 			{
+			
 				this.m_oFlagLayer.setSource(this.clusterForVectorFlagSource);
 			}else
 			{
 				this.m_oFlagLayer.setSource(this.m_vectorFlagSource);
 			}
-			
+			*/
 			
 
 			
@@ -1608,13 +1611,40 @@ var g_classMapClass = new function()
 			maxResolution: 20
 		});
 		
+		this.m_oFlagLayer = new ol.layer.Vector({ 
+			name:"m_oFlagLayer",
+			source: this.m_vectorFlagSource,
+			maxResolution: 4,
+		
+		});
+
+		this.clusterForVectorFlagSource = new ol.source.Cluster({
+				name:"clusterForVectorFlagSource",
+				distance:50,
+				
+				//minDistance:parseInt(20,10),
+				source:this.m_vectorFlagSource,
+				//source:this.m_oFlagLayer.getSource(),
+			/*	geometryFunction: function(feature) {
+					if (this.m_oMap.getView().getZoom() > 16){
+						return null;
+					}else{
+				
+					return feature.getGeometry();
+						
+					}
+					
+				} , */
+				
+			}) 
+
 		var styleCache = {};
 
-		this.m_oFlagLayer = new ol.layer.Vector({ // Layer for the flags.
+		this.m_oClusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
 			name:"m_oFlagLayer",
 		//	source: this.m_vectorFlagSource,
-		//	source: this.clusterForVectorFlagSource , 
-		//	maxResolution: 4,
+			source: this.clusterForVectorFlagSource , 
+			minResolution: 4,
 		//	style: clusterStyle
 			style: function (feature) {
 					const size = feature.get('features').length;
@@ -1643,9 +1673,9 @@ var g_classMapClass = new function()
 				},
 		}); 
 
+		
 		console.log("this.createMap - flaglayerfeatures-count: ", this.m_vectorFlagSource.getFeatures().length);
 		
-
 		this.m_oMyPosLayer =	new ol.layer.Vector({ // Layer for the position.
 			source: this.m_vectorPositonSource,
 			maxResolution: 20
@@ -1666,7 +1696,7 @@ var g_classMapClass = new function()
 //		console.log("this.createMap-rightBeforeAdding this.m_oFlagLayer in Map: ",this.m_oFlagLayer.getSource().getFeatures().length);
 		// Set the global map at the same time, to use in static functions.
 		this.m_oMap = new ol.Map({
-			layers: [ this.m_oMapLayer, this.m_oAreaLayer, this.m_oFlagLayer, this.m_oMyPosLayer, this.m_oLayerFromMapLayerModule ],
+			layers: [ this.m_oMapLayer, this.m_oAreaLayer, this.m_oFlagLayer, this.m_oClusterFlagLayer , this.m_oMyPosLayer, this.m_oLayerFromMapLayerModule ],
 			target: document.getElementById('map'),
 			controls: ol.control.defaults({
 				attributionOptions: /** @type { olx.control.AttributionOptions} */ ({
@@ -1751,18 +1781,53 @@ var g_classMapClass = new function()
 				this.m_iFlagSize = ICON_SIZE_LARGE;
 				this.createFlagLayer(this.m_aFlags);
 			}
-			else if (this.m_iZoom >= 16 && this.m_iZoom < 18)
+			else if (this.m_iZoom >= 16.5 && this.m_iZoom < 18)
 			{
 			console.log("this.m_iZoom >= 16 && this.m_iZoom < 18")
 				this.m_iFlagSize = ICON_SIZE_NORMAL;
+				console.log("this.m_iFlagSize-RIGHTBEFORE-THIS.CREATEFLAGlAYER:---------  ",this.m_iFlagSize);
 				this.createFlagLayer(this.m_aFlags);
 			}
-			else if (this.m_iZoom < 16)
+			else if (this.m_iZoom < 16.5)
 			{
 				console.log("this.m_iZoom < 16")
+				
 				this.m_iFlagSize = ICON_SIZE_SMALL;
+			//	this.m_iFlagSize = .8;
 				this.createFlagLayer(this.m_aFlags);
 			} 
+
+
+				this.m_oMap.on("click", (e)=>{
+				console.log("test")
+				console.log("event-coordinate: ", e.coordinate);
+				this.m_oClusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => {
+				console.log("clickedFeatures: ",clickedFeatures);
+				if (clickedFeatures.length) {
+				  // Get clustered Coordinates
+				  const features = clickedFeatures[0].get('features');
+				  console.log("features-length: ",features.length);
+				 
+				if(Array.isArray(features)){
+					features.forEach(item=>{
+					console.log("name::: ",item.getKeys())
+					
+					})
+					
+					//  console.log("munfeatures2:")
+					if (features.length > 1) {
+						const extent = ol.extent.boundingExtent(
+						features.map((r) => r.getGeometry().getCoordinates())
+						);
+						this.m_oMap.getView().fit(extent, {duration: 1500, padding: [100, 100, 100, 100]});
+					}
+					
+				} 
+				}
+			  }); 
+			})   
+
+
 		}
 		
 	this.debounce = (func, delay)=>
