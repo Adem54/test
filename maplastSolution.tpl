@@ -1,8 +1,8 @@
 <link type="text/css" rel="stylesheet" href="css/map.css" />
-<link rel="stylesheet" href="../web/scripts/dist/ol-ext.min.css">
+
 <script src="js/map_gps.js?v={{@version_js}}"></script>
 <!--script src="modules/module_websocket.js"></script-->
-<script src="../web/scripts/dist/ol-ext.min.js"></script>
+
 <script src="modules/module_map_util.js"></script>
 
 
@@ -412,19 +412,19 @@
 					}					
 				},		*/
 			})
-			console.log("coorddddddddddddddd: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
-			// classMap.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
+			console.log("coordd: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
+			
 		//	 classMap.clusterFlagLayer = new ol.layer.AnimatedCluster({
-			 classMap.clusterFlagLayer = new ol.layer.AnimatedCluster({
+		classMap.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
 					//source: arrangeClusterByZoomLevel(), //617.satrrdaki classMap.map.getView().on() ile resolution degismesinde tetiklenen eventi yorum satiri yapmadan once burasi calisiyordu
+					name:"clusterLayer",
 					source: classMap.clusterForVectorFlagSource,//
 				//	source:classMap.vectorFlagSource,
 				//	maxResolution: 20,
 					style: clusterStyle,
 				//	style:styleCluster,
 					animationDuration:1500,
-					minResolution:5,
-					
+					minResolution:3,
 				});
 
 				const styleCache = {};
@@ -437,33 +437,9 @@
 							const size = clusterFeature.get('features').length;
 							let style = styleCache[size];
 					
-						if(size == 1){
-						var selectedFeature = clusterFeature.get('features')[0];
+						
 	
-						if (!style) {
-							style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 10,
-								stroke: new ol.style.Stroke({
-									color: '#fff',
-								}),
-								fill: new ol.style.Fill({
-									color: '#3399CC',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:1,
-								fill: new ol.style.Fill({
-									color: '#fff',
-								}),
-								}),
-							});
-							
-							}
-						
-						
-						}else if(size < 50){
+					 if(size < 50){
 						
 						if (!style) {
 							
@@ -486,7 +462,7 @@
 								}),
 							});
 							}
-							}else if(size < 100){
+							}else if(size < 100 && size > 50){
 						
 	
 							
@@ -530,9 +506,7 @@
 								}),
 								}),
 							});
-							
-							
-						
+
 						}else if(size < 200 && size >= 150) {
 						
 						
@@ -555,7 +529,7 @@
 						}),
 						}),
 					});
-						}else if(size < 250) {
+						}else if(size > 200 && size < 250) {
 						
 						
 						style =  new ol.style.Style({
@@ -577,7 +551,7 @@
 						}),
 					});
 						}
-						else if (size < 300){
+						else if (size > 250 && size < 300){
 						
 						style =  new ol.style.Style({
 						image: new ol.style.Circle({
@@ -624,7 +598,7 @@
 	
 							styleCache[size] = style;
 						}
-						else if(size > 400){
+						else if(size > 400 && size < 500){
 						
 					//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
 						style =  new ol.style.Style({
@@ -648,34 +622,64 @@
 	
 							styleCache[size] = style;
 						}
-						else if(size > 500){
-						console.log("clusterStyle: size > 500")
-						console.log("coord: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
-					//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						clusterFeature.getGeometry().setCoordinates(ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]));
-						// ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]);
-						//CENTER_LONGITUDE  CENTER_LATITUDE
-						style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 36,
-								stroke: new ol.style.Stroke({
-									color: '#000',
-								}),
-								fill: new ol.style.Fill({
-									color: '#fc6f03',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:3.6,
-								fill: new ol.style.Fill({
-									color: '#000',
-								}),
-								}),
-							});
+						else if(size > 500 && size < 1000)
+						{
+							console.log("clusterStyle: size > 500");
+						//	console.log("coord: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
+						//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
+						//	clusterFeature.getGeometry().setCoordinates(ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]));
+							// ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]);
+							//CENTER_LONGITUDE  CENTER_LATITUDE
+							style =  new ol.style.Style({
+									image: new ol.style.Circle({
+									radius: 36,
+									stroke: new ol.style.Stroke({
+										color: '#000',
+									}),
+									fill: new ol.style.Fill({
+										color: '#fc6f03',
+									}),
+									}),
+									text: new ol.style.Text({
+									text: size.toString(),
+									scale:3.6,
+									fill: new ol.style.Fill({
+										color: '#000',
+									}),
+									}),
+								});
+	
+							styleCache[size] = style;
+						}else if(size >= 1000)
+						{
+							console.log("clusterStyle: size > 500");
+						//	console.log("coord: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
+						//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
+						//	clusterFeature.getGeometry().setCoordinates(ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]));
+							// ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]);
+							//CENTER_LONGITUDE  CENTER_LATITUDE
+							style =  new ol.style.Style({
+									image: new ol.style.Circle({
+									radius: 40,
+									stroke: new ol.style.Stroke({
+										color: '#000',
+									}),
+									fill: new ol.style.Fill({
+										color: '#fa344c',
+									}),
+									}),
+									text: new ol.style.Text({
+									text: size.toString(),
+									scale:3,
+									fill: new ol.style.Fill({
+										color: '#000',
+									}),
+									}),
+								});
 	
 							styleCache[size] = style;
 						}
+	
 	
 						
 						return style;
@@ -742,7 +746,7 @@
 							if (classMap.iZoom >= 18)
 							{
 								classMap.iFlagSize = classMap.iLargeSize;
-							//	createFlagLayer(classMap.aFlags);
+								createFlagLayer(classMap.aFlags);
 								
 								
 								
@@ -751,9 +755,9 @@
 						//	classMap.map.setLayers([ classMap.map_layer, classMap.polygonLayer , classMap.vectorPositionLayer, classMap.layerFromMapLayerModule, classMap.vectorFlagLayer]);
 						
 								classMap.iFlagSize = classMap.iNormalSize;
-								classMap.iFlagSize = classMap.iSmallSize;
+							
 								createFlagLayer(classMap.aFlags);
-								console.log("classMap.iZoom >= 16 && classMap.iZoom < 18");
+								console.log("classMap.iZoom >= 16 && classMap.iZoom < 18 -ICONSIZE:", classMap.iFlagSize);
 								
 							
 								console.log("getVisible-cluster: ",classMap.clusterFlagLayer.getVisible());
@@ -761,7 +765,7 @@
 							{
 								
 								
-							console.log("classMap.iZoom < 16");
+							console.log("classMap.iZoom < 16, ICONSIZE: ", classMap.iFlagSize);
 						//	classMap.map.setLayers([ classMap.map_layer, classMap.polygonLayer , classMap.vectorPositionLayer, classMap.layerFromMapLayerModule, classMap.clusterFlagLayer]);
 						
 								classMap.iFlagSize = classMap.iSmallSize;
@@ -1861,7 +1865,22 @@
 	{
 		let iFontSize = 18;
 
-		switch (classMap.iZoom)
+		if(classMap.iZoom >= 18)
+		{
+			iFontSize = 18;
+		}else if(classMap.iZoom  < 18 && classMap.iZoom > 16)
+		{
+			iFontSize = 14;
+
+		}else if(classMap.iZoom  <= 16)
+		{
+			iFontSize = 12;
+		}else
+		{
+			iFontSize = 9;
+		}
+
+	/*	switch (classMap.iZoom)
 		{
 			case 17:
 				iFontSize = 14;
@@ -1876,7 +1895,7 @@
 				if (classMap.iZoom < 15)
 					iFontSize = 9;
 				break;
-		}
+		}*/
 
 		let oTextStyle = new ol.style.Style({
 			text: new ol.style.Text({
@@ -1884,8 +1903,10 @@
 				font: iFontSize + 'px sans-serif',
 				offsetY: 6,
 				offsetX: 0,
-				fill: new ol.style.Fill({ color: 'rgb(255,255,255)' }),
-				stroke: new ol.style.Stroke({ color: 'rgb(255,255,255)', width: 1 })
+			//	fill: new ol.style.Fill({ color: 'rgb(255,255,255)' }),
+			//	stroke: new ol.style.Stroke({ color: 'rgb(255,255,255)', width: 1 }),
+				fill: new ol.style.Fill({ color: 'rgb(0,0,0)' }), // Black color.
+				stroke: new ol.style.Stroke({ color: 'rgb(0,0,0)', width: 1 })
 			}),
 			zIndex: 10
 		});
@@ -2575,7 +2596,7 @@
 			 classMap.vectorFlagLayer = new ol.layer.Vector({
 			//	source: classMap.vectorFlagSource,
 				source:classMap.vectorFlagSource,
-				maxResolution: 5,
+				maxResolution: 3,
 						
 				})	
 		

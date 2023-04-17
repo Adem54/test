@@ -253,6 +253,11 @@ var g_classMapClass = new function()
 		let feature = this.m_oMap.forEachFeatureAtPixel(evt.pixel,
 			function (feature, layer) {
 				return feature;
+			},
+			{
+				layerFilter:function(oLayer){
+					return oLayer.get("name") !== "m_oClusterFlagLayer";
+				}
 			}
 		);
 
@@ -1608,7 +1613,7 @@ var g_classMapClass = new function()
 		
 		this.m_oAreaLayer = new ol.layer.Vector({
 			source: polygonSource, // Layer for the areas
-			maxResolution: 20
+		//	maxResolution: 20
 		});
 		
 		this.m_oFlagLayer = new ol.layer.Vector({ 
@@ -1641,7 +1646,7 @@ var g_classMapClass = new function()
 		var styleCache = {};
 
 		this.m_oClusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
-			name:"m_oFlagLayer",
+			name:"m_oClusterFlagLayer",
 		//	source: this.m_vectorFlagSource,
 			source: this.clusterForVectorFlagSource , 
 			minResolution: 4,
@@ -1649,26 +1654,92 @@ var g_classMapClass = new function()
 			style: function (feature) {
 					const size = feature.get('features').length;
 					let style = styleCache[size];
-					if (!style) {
-					style = new ol.style.Style({
+				
+					if (size < 20)
+					{
+						if (!style) {
+						style = new ol.style.Style({
+							image: new ol.style.Circle({
+							radius: 14,
+							stroke: new ol.style.Stroke({
+								color: '#fff',
+							}),
+							fill: new ol.style.Fill({
+								color: '#3399CC',
+							}),
+							}),
+							text: new ol.style.Text({
+							text: size.toString(),
+							scale:1.4,
+							fill: new ol.style.Fill({
+								color: '#fff',
+							}),
+							}),
+						});
+						styleCache[size] = style;
+						}
+					}else if(size >= 20 && size < 30 ){
+							
+						style =  new ol.style.Style({
+							image: new ol.style.Circle({
+							radius: 16,
+							stroke: new ol.style.Stroke({
+								color: '#000',
+							}),
+							fill: new ol.style.Fill({
+								color: '#dffc03',
+							}),
+							}),
+							text: new ol.style.Text({
+							text: size.toString(),
+							scale:1.6,
+							fill: new ol.style.Fill({
+								color: '#000',
+							}),
+							}),
+						});
+					}else if(size >= 30 && size < 50 ){
+							
+					style =  new ol.style.Style({
 						image: new ol.style.Circle({
-						radius: 10,
+						radius: 18,
 						stroke: new ol.style.Stroke({
-							color: '#fff',
+							color: '#000',
 						}),
 						fill: new ol.style.Fill({
-							color: '#3399CC',
+							color: '#03fce8',
 						}),
 						}),
 						text: new ol.style.Text({
 						text: size.toString(),
+						scale:1.8,
 						fill: new ol.style.Fill({
-							color: '#fff',
+							color: '#000',
 						}),
 						}),
 					});
-					styleCache[size] = style;
-					}
+				}else if(size >= 50){
+							
+				style =  new ol.style.Style({
+						image: new ol.style.Circle({
+						radius: 22,
+						stroke: new ol.style.Stroke({
+							color: '#000',
+						}),
+						fill: new ol.style.Fill({
+							color: '#fc0377',
+						}),
+						}),
+						text: new ol.style.Text({
+						text: size.toString(),
+						scale:2.2,
+						fill: new ol.style.Fill({
+							color: '#000',
+						}),
+						}),
+					});
+			}
+					
 					return style;
 				},
 		}); 
@@ -1781,14 +1852,14 @@ var g_classMapClass = new function()
 				this.m_iFlagSize = ICON_SIZE_LARGE;
 				this.createFlagLayer(this.m_aFlags);
 			}
-			else if (this.m_iZoom >= 16.5 && this.m_iZoom < 18)
+			else if (this.m_iZoom >= 16 && this.m_iZoom < 18)
 			{
 			console.log("this.m_iZoom >= 16 && this.m_iZoom < 18")
 				this.m_iFlagSize = ICON_SIZE_NORMAL;
 				console.log("this.m_iFlagSize-RIGHTBEFORE-THIS.CREATEFLAGlAYER:---------  ",this.m_iFlagSize);
 				this.createFlagLayer(this.m_aFlags);
 			}
-			else if (this.m_iZoom < 16.5)
+			else if (this.m_iZoom < 16)
 			{
 				console.log("this.m_iZoom < 16")
 				
