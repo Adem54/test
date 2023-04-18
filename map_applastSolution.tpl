@@ -250,49 +250,73 @@ var g_classMapClass = new function()
 	// When click on the map.
 	this.mapClick = (evt) => 
 	{
-		let feature = this.m_oMap.forEachFeatureAtPixel(evt.pixel,
-			function (feature, layer) {
-				return feature;
-			},
-			{
-				layerFilter:function(oLayer){
-					return oLayer.get("name") !== "m_oClusterFlagLayer";
+		console.log("MAPCLICK------------")
+		this.m_oClusterFlagLayer.getFeatures(evt.pixel).then((clickedFeatures) => 
+		{ 
+			console.log("clickedFeatures: ",clickedFeatures);
+		
+			let feature = this.m_oMap.forEachFeatureAtPixel(evt.pixel,
+				function (feature, layer) {
+					return feature;
+				},
+				{
+					layerFilter:function(oLayer){
+						if(oLayer.get("name") == "m_oAreaLayer")
+						{
+							if(clickedFeatures.length && clickedFeatures.length > 0)
+							{
+								let isClusterInsidePolygonLayer = oLayer.getSource().getFeaturesAtCoordinate(evt.coordinate);
+								if(isClusterInsidePolygonLayer && isClusterInsidePolygonLayer.length > 0)
+								{
+									
+									return (oLayer.get("name") !== "m_oClusterFlagLayer" && oLayer.get("name") !== "m_oAreaLayer");
+								}else{
+								
+									return oLayer.get("name") !== "m_oClusterFlagLayer";
+								}
+							}else{
+								return oLayer.get("name") !== "m_oClusterFlagLayer";
+							}
+						}  
+						return oLayer.get("name") !== "m_oClusterFlagLayer";
+						
+					}
 				}
-			}
-		);
+			);
 
-		if (feature)
-		{
-			let isIcon = feature.get("isicon"); // Check if it is a icon.
-			if (isIcon)
+			if (feature)
 			{
-				let iMainObjectId = feature.get("objectid");
-				let sStatus = feature.get("status"); // Red, Green, Blue, Orange, Ring, Ring_multi
-				let sName = feature.get("name");
-				
-				g_oWebViewInterface.emit("onClickMap", { objectid: iMainObjectId, status: sStatus, name: sName });
-				
-				clearAreaNameTimeout();
-			}
-			else // If not area or other stuff
-			{
-				let sName = feature.get("name");
-				
-				clearAreaNameTimeout();
-				
-				g_overlayAreaName.setPosition(evt.coordinate);
-				$("#areaname").html('<div style="height:relative; padding-left:10px; padding-right:10px; padding-top:5px; padding-bottom:5px; background-color: #A8C1BF; opacity:0.7; border: 2px solid #5a827f;">'+
-					sName+'</div>');
-				$("#areaname").css("display", "block");
-				//document.body.style.cursor = feature ? 'pointer' : '';
+				let isIcon = feature.get("isicon"); // Check if it is a icon.
+				if (isIcon)
+				{
+					let iMainObjectId = feature.get("objectid");
+					let sStatus = feature.get("status"); // Red, Green, Blue, Orange, Ring, Ring_multi
+					let sName = feature.get("name");
+					
+					g_oWebViewInterface.emit("onClickMap", { objectid: iMainObjectId, status: sStatus, name: sName });
+					
+					clearAreaNameTimeout();
+				}
+				else // If not area or other stuff
+				{
+					let sName = feature.get("name");
+					
+					clearAreaNameTimeout();
+					
+					g_overlayAreaName.setPosition(evt.coordinate);
+					$("#areaname").html('<div style="height:relative; padding-left:10px; padding-right:10px; padding-top:5px; padding-bottom:5px; background-color: #A8C1BF; opacity:0.7; border: 2px solid #5a827f;">'+
+						sName+'</div>');
+					$("#areaname").css("display", "block");
+					//document.body.style.cursor = feature ? 'pointer' : '';
 
-				g_timeoutAreaName = window.setTimeout(timeoutAreaName, 2000);
-			}
-		}
-		else // Outside a feature.
-		{
-			clearAreaNameTimeout();
-		}
+					g_timeoutAreaName = window.setTimeout(timeoutAreaName, 2000);
+				}
+				}
+				else // Outside a feature.
+				{
+					clearAreaNameTimeout();
+				}
+		}); 
 	};
 	
 	this.getFleetInterval = () =>
@@ -1520,19 +1544,6 @@ var g_classMapClass = new function()
 
 				console.log("ZOOM-LEVEL: ",this.m_oMap.getView().getZoom());
 				
-
-			/* this.m_oMap.getAllLayers().forEach(layer=>{
-				if(layer.get("name") == "clusterFlagLayer"){
-						console.log("clusterFlagLayerName: ", layer.get("name"));
-					console.log("CLUSTERFLAGLAYER-features-number: ",layer?.getSource()?.getSource()?.getFeatures()?.length)
-					}
-				})	*/
-
-				//this.createFlagLayer invoke edilip bu satira geldikten sonra this.creaetMap icinde nereyi calistiriyor kendisinden sonra ki zoom-level eventini icerisiinde zoom-level lara gore conditionlar olan kismi cslistiriyor
-				
-				//clusterLayer i map e burda ekleyelim once map i test edelim.. 
-			//	console.log("clusterFlagLayer-NAME; ",this.clusterFlagLayer.get("name"));
-			//	console.log("clusterFlagLayer-features-count: ", this.clusterFlagLayer.getSource()?.getSource()?.getFeatures()?.length)
 			
 		}
 		catch (e)
@@ -1612,7 +1623,9 @@ var g_classMapClass = new function()
 		});
 		
 		this.m_oAreaLayer = new ol.layer.Vector({
+			name:"m_oAreaLayer",
 			source: polygonSource, // Layer for the areas
+			zIndex:1,
 		//	maxResolution: 20
 		});
 		
@@ -1620,6 +1633,7 @@ var g_classMapClass = new function()
 			name:"m_oFlagLayer",
 			source: this.m_vectorFlagSource,
 			maxResolution: 4,
+			zIndex:10,
 		
 		});
 
@@ -1650,6 +1664,7 @@ var g_classMapClass = new function()
 		//	source: this.m_vectorFlagSource,
 			source: this.clusterForVectorFlagSource , 
 			minResolution: 4,
+			zIndex:10,
 		//	style: clusterStyle
 			style: function (feature) {
 					const size = feature.get('features').length;
@@ -1870,32 +1885,28 @@ var g_classMapClass = new function()
 
 
 				this.m_oMap.on("click", (e)=>{
-				console.log("test")
-				console.log("event-coordinate: ", e.coordinate);
-				this.m_oClusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => {
-				console.log("clickedFeatures: ",clickedFeatures);
-				if (clickedFeatures.length) {
-				  // Get clustered Coordinates
-				  const features = clickedFeatures[0].get('features');
-				  console.log("features-length: ",features.length);
-				 
-				if(Array.isArray(features)){
-					features.forEach(item=>{
-					console.log("name::: ",item.getKeys())
-					
-					})
-					
-					//  console.log("munfeatures2:")
-					if (features.length > 1) {
-						const extent = ol.extent.boundingExtent(
-						features.map((r) => r.getGeometry().getCoordinates())
-						);
-						this.m_oMap.getView().fit(extent, {duration: 1500, padding: [100, 100, 100, 100]});
-					}
-					
-				} 
-				}
-			  }); 
+					console.log("tesTTTTT--MAPONCLICK-------")
+					console.log("event-coordinate: ", e.coordinate);
+					this.m_oClusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => 
+					{
+						console.log("clickedFeatures: ",clickedFeatures);
+						if (clickedFeatures.length) {
+						// Get clustered Coordinates
+						const features = clickedFeatures[0].get('features');
+						console.log("features-length: ",features.length);
+						
+						if(Array.isArray(features)){
+							//  console.log("munfeatures2:")
+							if (features.length > 1) {
+								const extent = ol.extent.boundingExtent(
+								features.map((r) => r.getGeometry().getCoordinates())
+								);
+								this.m_oMap.getView().fit(extent, {duration: 1500, padding: [100, 100, 100, 100]});
+							}
+							
+						} 
+						}
+				}); 
 			})   
 
 

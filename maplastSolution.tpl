@@ -139,10 +139,6 @@
 		name:"vectorFlagSource"
 	});
 
-	
-	classMap.clusterFlagSource = new ol.source.Vector({
-		name:"clusterVectorFlagSource"
-	});;
 	// Create an empty vector for the positons on the map.
 	classMap.vectorPositonSource = new ol.source.Vector({
 
@@ -388,355 +384,151 @@
 				if (oRet.bRet)
 				{
 					classMap.aFlags = oRet.aData.data;
-				//	console.log("classMap.aFlags: ", classMap.aFlags);
-					
 					// Draw all the cottages.
-					//Bizim map imiz burda olusuyor iste tam olarak....
 					createFlagLayer(classMap.aFlags);
 			
 					console.log("Zoom-level: ",classMap.map.getView().getZoom());
-
-					
-			classMap.clusterForVectorFlagSource = new ol.source.Cluster({
-			//	name:"clusterForVectorFlagSource",
-				distance:250,
-				//minDistance:parseInt(20,10),
-			//	source:classMap.clusterFlagSource,
-				source:classMap.vectorFlagSource,
-			/*	geometryFunction: function(feature) {
-					//don't apply to cluster over 16-zoom-level
-					if (classMap.map.getView().getZoom() > 16){
-						return null;
-					}else{
-						return feature.getGeometry();						
-					}					
-				},		*/
-			})
+				
+					classMap.clusterForVectorFlagSource = new ol.source.Cluster
+					({
+						distance:250,
+						source:classMap.vectorFlagSource,
+					/*	geometryFunction: function(feature) {
+							//don't apply to cluster over 16-zoom-level
+							if (classMap.map.getView().getZoom() > 16){
+								return null;
+							}else{
+								return feature.getGeometry();						
+							}					
+						},		*/
+					})
 			
 			
-		//	 classMap.clusterFlagLayer = new ol.layer.AnimatedCluster({
-		classMap.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
-					//source: arrangeClusterByZoomLevel(), //617.satrrdaki classMap.map.getView().on() ile resolution degismesinde tetiklenen eventi yorum satiri yapmadan once burasi calisiyordu
-					name:"clusterLayer",
-					source: classMap.clusterForVectorFlagSource,//
-				//	source:classMap.vectorFlagSource,
-				//	maxResolution: 20,
-					style: clusterStyle,
-				//	style:styleCluster,
-					animationDuration:1500,
-					minResolution:3,
-				});
+				//	 classMap.clusterFlagLayer = new ol.layer.AnimatedCluster({
+					classMap.clusterFlagLayer = new ol.layer.Vector
+					({ // Layer for the flags.
+						name:"clusterLayer",
+						source: classMap.clusterForVectorFlagSource,
+						style: clusterStyle,
+						animationDuration:1500,
+						minResolution:3,
+					});
 
-				const styleCache = {};
-				function clusterStyle (clusterFeature) {
-				//	console.log("clusterStyle start");//cluster aktif oldugunda zoom-level a gore burasi surekli calisiyor dolayisi ile burda tum features lari donudurup setStyle i undefined cok mantikli bir is olmaz..zaten performans diye birsey kalmaz
-					if(Array.isArray(clusterFeature.get('features')))
+				
+					function getClusterStyleBySize(radius, strokeColor, fillColor, size, scale, textFillColor)
 					{
-				//	console.log("clusterStyle has clusterFeature.get('features')");
-	
+						let style = new ol.style.Style
+							({
+								image: new ol.style.Circle({
+									radius,
+									stroke: new ol.style.Stroke({
+										color: strokeColor,
+									}),
+									fill: new ol.style.Fill({
+										color: fillColor,
+									}),
+								}),
+								text: new ol.style.Text({
+									text: size.toString(),
+									scale,
+									fill: new ol.style.Fill({
+										color: textFillColor,
+									}),
+								}),
+							});
+
+						return style;	
+					}
+					
+					const styleCache = {};
+					
+					function clusterStyle (clusterFeature) {
+						if(Array.isArray(clusterFeature.get('features')))
+						{	
 							const size = clusterFeature.get('features').length;
 							let style = styleCache[size];
-					
-						
-	
-					 if(size < 50){
-						
-						if (!style) {
-							
-							style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 10,
-								stroke: new ol.style.Stroke({
-									color: '#fff',
-								}),
-								fill: new ol.style.Fill({
-									color: '#3399CC',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:1,
-								fill: new ol.style.Fill({
-									color: '#fff',
-								}),
-								}),
-							});
-							}
-							}else if(size < 100 && size > 50){
-						
-	
-							
-							style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 14,
-								stroke: new ol.style.Stroke({
-									color: '#000',
-								}),
-								fill: new ol.style.Fill({
-									color: '#03d3fc',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:1.4,
-								fill: new ol.style.Fill({
-									color: '#000',
-								}),
-								}),
-							});
-							
-							}
-							else if(size < 150 && size >= 100){
-							
-							style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 16,
-								stroke: new ol.style.Stroke({
-									color: '#000',
-								}),
-								fill: new ol.style.Fill({
-									color: '#dffc03',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:1.6,
-								fill: new ol.style.Fill({
-									color: '#000',
-								}),
-								}),
-							});
+							let styleParams = [];	
 
-						}else if(size < 200 && size >= 150) {
+							let aClusterStyleData =	[
+								
+								{iId:1, sTitle:"style1", bSize:size < 50, aStyleParams: [10, '#fff', '#3399CC', size, 1, '#fff' ]},
+								{iId:2, sTitle:"style2", bSize:size < 100 && size > 50, aStyleParams:[14, '#000', '#03d3fc', size, 1.4, '#000' ] },
+								{iId:3, sTitle:"style3", bSize:size < 150 && size >= 100, aStyleParams:[16, '#000', '#dffc03', size, 1.6, '#000' ] },
+								{iId:4, sTitle:"style4", bSize:size < 200 && size >= 150, aStyleParams:[18, '#000', '#03fce8', size, 1.8, '#000' ] },
+								{iId:5, sTitle:"style5", bSize:size > 200 && size < 250, aStyleParams:[20, '#000', '#03fce8', size, 2, '#000' ] },
+								{iId:6, sTitle:"style6", bSize:size > 250 && size < 300, aStyleParams:[22, '#000', '#fc0377', size, 2.2, '#000' ] },
+								{iId:7, sTitle:"style7", bSize:size > 300 && size <= 400, aStyleParams:[26, '#000', '#fce303', size, 2.6, '#000' ] },
+								{iId:8, sTitle:"style8", bSize:size > 400 && size < 500, aStyleParams:[32, '#000', '#03fc49', size, 3.2, '#000' ] },
+								{iId:9, sTitle:"style9", bSize:size > 500 && size < 1000, aStyleParams:[36, '#000', '#fc6f03', size, 3.6, '#000' ] },
+								{iId:10, sTitle:"style10", bSize:size >= 1000, aStyleParams:[40, '#000', '#fa344c', size, 3, '#000' ] },
+										
+							];
 						
+							let oFindStyleData = aClusterStyleData.find(style =>style.bSize);
+						//	console.log("oFindStyleData:", oFindStyleData);
+
+							if(oFindStyleData)
+							{	
+								let { iId, sTitle, bSize, aStyleParams } = oFindStyleData ;
+
+								if(!style)
+								{
+									style = getClusterStyleBySize(...aStyleParams);
+									styleCache[size] = style;
+								}
+							}
 						
-						
-						style =  new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 18,
-						stroke: new ol.style.Stroke({
-							color: '#000',
-						}),
-						fill: new ol.style.Fill({
-							color: '#03fce8',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						scale:1.8,
-						fill: new ol.style.Fill({
-							color: '#000',
-						}),
-						}),
-					});
-						}else if(size > 200 && size < 250) {
-						
-						
-						style =  new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 20,
-						stroke: new ol.style.Stroke({
-							color: '#000',
-						}),
-						fill: new ol.style.Fill({
-							color: '#03fce8',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						scale:2,
-						fill: new ol.style.Fill({
-							color: '#000',
-						}),
-						}),
-					});
+							return style;
 						}
-						else if (size > 250 && size < 300){
-						
-						style =  new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 22,
-						stroke: new ol.style.Stroke({
-							color: '#000',
-						}),
-						fill: new ol.style.Fill({
-							color: '#fc0377',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						scale:2.2,
-						fill: new ol.style.Fill({
-							color: '#000',
-						}),
-						}),
-					});
-						
-						
-						}
-						else if(size > 300 && size <= 400){
-						
-					//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 26,
-								stroke: new ol.style.Stroke({
-									color: '#000',
-								}),
-								fill: new ol.style.Fill({
-									color: '#fce303',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:2.6,
-								fill: new ol.style.Fill({
-									color: '#000',
-								}),
-								}),
-							});
-	
-							styleCache[size] = style;
-						}
-						else if(size > 400 && size < 500){
-						
-					//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						style =  new ol.style.Style({
-								image: new ol.style.Circle({
-								radius: 32,
-								stroke: new ol.style.Stroke({
-									color: '#000',
-								}),
-								fill: new ol.style.Fill({
-									color: '#03fc49',
-								}),
-								}),
-								text: new ol.style.Text({
-								text: size.toString(),
-								scale:3.2,
-								fill: new ol.style.Fill({
-									color: '#000',
-								}),
-								}),
-							});
-	
-							styleCache[size] = style;
-						}
-						else if(size > 500 && size < 1000)
-						{
-							console.log("clusterStyle: size > 500");
-						//	console.log("coord: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
-						//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						//	clusterFeature.getGeometry().setCoordinates(ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]));
-							// ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]);
-							//CENTER_LONGITUDE  CENTER_LATITUDE
-							style =  new ol.style.Style({
-									image: new ol.style.Circle({
-									radius: 36,
-									stroke: new ol.style.Stroke({
-										color: '#000',
-									}),
-									fill: new ol.style.Fill({
-										color: '#fc6f03',
-									}),
-									}),
-									text: new ol.style.Text({
-									text: size.toString(),
-									scale:3.6,
-									fill: new ol.style.Fill({
-										color: '#000',
-									}),
-									}),
-								});
-	
-							styleCache[size] = style;
-						}else if(size >= 1000)
-						{
-							console.log("clusterStyle: size > 500");
-						//	console.log("coord: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
-						//	clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-						//	clusterFeature.getGeometry().setCoordinates(ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]));
-							// ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]);
-							//CENTER_LONGITUDE  CENTER_LATITUDE
-							style =  new ol.style.Style({
-									image: new ol.style.Circle({
-									radius: 40,
-									stroke: new ol.style.Stroke({
-										color: '#000',
-									}),
-									fill: new ol.style.Fill({
-										color: '#fa344c',
-									}),
-									}),
-									text: new ol.style.Text({
-									text: size.toString(),
-									scale:3,
-									fill: new ol.style.Fill({
-										color: '#000',
-									}),
-									}),
-								});
-	
-							styleCache[size] = style;
-						}
-	
-	
-						
-						return style;
+							
 					}
 						
-				}
-					
-						classMap.map.addLayer(classMap.vectorFlagLayer);	
-						classMap.map.addLayer(classMap.clusterFlagLayer);	
-						//classMap.clusterFlagLayer.setVisible(false);
-						
-						classMap.map.on("click", (e)=>{
-						
-							console.log("event-coordinate-CLUSTERRRRRRR: ", e.coordinate);
-						
-							console.log("features of clusterFlag; ",classMap.clusterFlagLayer.getSource().getSource().getFeatures().length)
-							classMap.clusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => {
-								console.log("clickedFeaturesSSSSSS: ",clickedFeatures);//if it comes empty array, it means the point we checked is not cluster, if not it is cluster
-								if (clickedFeatures.length && clickedFeatures.length > 0) {
-									// Get clustered Coordinates
-									console.log("CLUSTER-POINT IS CLICKED")
-									const features = clickedFeatures[0].get('features');
-									console.log("features-length: ",features.length);
+					classMap.map.addLayer(classMap.vectorFlagLayer);	
+					classMap.map.addLayer(classMap.clusterFlagLayer);	
+							
+					classMap.map.on("click", (e)=>
+					{
+						classMap.clusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => 
+						{
+							if (clickedFeatures.length && clickedFeatures.length > 0) 
+							{
 								
-									if(Array.isArray(features)){
-										
-											//  console.log("munfeatures2:")
-											if (features.length > 1) 
-											{
-												const extent = ol.extent.boundingExtent(
-												features.map((r) => r.getGeometry().getCoordinates())
-												);
-												classMap.map.getView().fit(extent, {duration: 2500, padding: [100, 100, 100, 100]});
-											}
-										
-									} 
-								}
-							});
-						});
+								const features = clickedFeatures[0].get('features');	
+								if(Array.isArray(features))
+								{
+									
+									if (features.length > 1) 
+									{
+										const extent = ol.extent.boundingExtent(
+										features.map((r) => r.getGeometry().getCoordinates())
+										);
+										classMap.map.getView().fit(extent, {duration: 2500, padding: [100, 100, 100, 100]});
+									}
+									
+								} 
+							}
+						}); 
+					});
 
 
-						function debounce(func, delay) {
+					function debounce(func, delay) 
+					{
 						let timer;
-						return function() {
+						return function() 
+						{
 							const context = this;
 							const args = arguments;
 							clearTimeout(timer);
 							timer = setTimeout(() => func.apply(context, args), delay);
 						};
-						}
-								  
-						const debouncedFunction = debounce(onChangeZoomLevel, 1000);
+					}
+									
+					const debouncedFunction = debounce(onChangeZoomLevel, 1000);
 
-						classMap.map.getView().on('change:resolution', debouncedFunction); 
+					classMap.map.getView().on('change:resolution', debouncedFunction); 
 
-						function  onChangeZoomLevel(evt)
-						{
+					function  onChangeZoomLevel(evt)
+					{
 						console.log("Zoom-levellll: ",classMap.map.getView().getZoom());
 							classMap.iZoom = classMap.map.getView().getZoom();
 
@@ -745,32 +537,18 @@
 								classMap.iFlagSize = classMap.iLargeSize;
 								createFlagLayer(classMap.aFlags);
 								
-								
-								
 							} else if (classMap.iZoom > 16 && classMap.iZoom < 18)
 							{
-						//	classMap.map.setLayers([ classMap.map_layer, classMap.polygonLayer , classMap.vectorPositionLayer, classMap.layerFromMapLayerModule, classMap.vectorFlagLayer]);
-						
 								classMap.iFlagSize = classMap.iNormalSize;
-							
-								createFlagLayer(classMap.aFlags);
-								console.log("classMap.iZoom >= 16 && classMap.iZoom < 18 -ICONSIZE:", classMap.iFlagSize);
-								
-							
-								console.log("getVisible-cluster: ",classMap.clusterFlagLayer.getVisible());
+								createFlagLayer(classMap.aFlags);							
 							} else if (classMap.iZoom <= 16)
 							{
-								
-								
-							console.log("classMap.iZoom < 16, ICONSIZE: ", classMap.iFlagSize);
-						//	classMap.map.setLayers([ classMap.map_layer, classMap.polygonLayer , classMap.vectorPositionLayer, classMap.layerFromMapLayerModule, classMap.clusterFlagLayer]);
-						
 								classMap.iFlagSize = classMap.iSmallSize;
 								createFlagLayer(classMap.aFlags);
 								
 							}	
-							}
-					//
+					}
+
 					// Update the plowers
 					update_plowers();
 
@@ -946,7 +724,14 @@
 			name:"polygonLayer",
 			source: polygonSource, // Layer for the areas
 			//	maxResolution: 30
+			zIndex:1,
 		}); 
+
+		classMap.vectorFlagLayer = new ol.layer.Vector({
+			source:classMap.vectorFlagSource,
+			maxResolution: 3,
+			zIndex:10,
+		})
 
 		classMap.vectorPositionLayer = new ol.layer.Vector({ // Layer for the position.
 			source: classMap.vectorPositonSource,
@@ -960,29 +745,6 @@
 		classMap.map = new ol.Map({
 
 			layers: [ classMap.map_layer, classMap.polygonLayer , classMap.vectorPositionLayer, classMap.layerFromMapLayerModule
-		/*		new ol.layer.Tile({
-					title: "Kart",
-					preload: 8,
-					source: g_oMapSource
-				}),
-				new ol.layer.Vector({
-					source: polygonSource, // Layer for the areas
-				//	maxResolution: 30
-				}),
-			/*	new ol.layer.Vector({ // Layer for the flags.
-					source: classMap.vectorFlagSource,
-					
-				//	source:clusterForVectorFlagSource,
-					maxResolution: 10,
-					
-				}), */
-			/*	new ol.layer.Vector({ // Layer for the position.
-					source: classMap.vectorPositonSource,
-					maxResolution: 10
-				}),
-				new ol.layer.Vector({ // Layer for the position.
-					source: sourceFromMapLayer,
-				}), */
 				
 			],
 			target: document.getElementById('map'),
@@ -2188,11 +1950,10 @@
 
 		// Clear the vecor layer.
 		classMap.vectorFlagSource.clear(true);
-		classMap.clusterFlagSource.clear(true);
 
 		// Empty the array.
 		classMap.iconFeatureList = []; // Empty the list.
-		classMap.iconFeatureListWithoutStyle = [];
+		
 
 		try
 		{
@@ -2200,7 +1961,6 @@
 			for (let i = 0; i < aObjectList.length; i++)
 			{
 				let iconFeature = null;
-				let iconFeatureForCluster = null;
 				let bIsOrder = (aObjectList[i]['status'] === 'red' || aObjectList[i]['status'] === 'green' || aObjectList[i]['status'] === 'blue' || aObjectList[i]['status'] === 'orange') ? true : false;
 				let sMessage = (aObjectList[i]['message']) ? aObjectList[i]['message'] : "";
 				let sMessageOrd = (aObjectList[i]['messageord']) ? aObjectList[i]['messageord'] : "";
@@ -2287,11 +2047,6 @@
 							minold: parseInt(aObjectList[i]['minold']),
 							timefinished: aObjectList[i]['timefinished'],
 							orderlist: aOrderList
-						});
-
-						iconFeatureForCluster = new ol.Feature({
-							objectid: parseInt(aObjectList[i]['object_id']),
-							geometry: new ol.geom.Point(ol.proj.fromLonLat([parseFloat(oLocation.longitude), parseFloat(oLocation.latitude)])),
 						});
 						
 						break;
@@ -2572,338 +2327,21 @@
 					{{@end-if:is_snowplow}}
 
 					// Update the list.
-					classMap.iconFeatureList.push(iconFeature);
-			
-					classMap.iconFeatureListWithoutStyle.push(iconFeatureForCluster);
-					
+					classMap.iconFeatureList.push(iconFeature);	
 				}
 			}
 			// Pull all the flags onto the map.
 			classMap.vectorFlagSource.clear(true);
-			classMap.clusterFlagSource.clear(true);
-			
-
 			classMap.vectorFlagSource.addFeatures(classMap.iconFeatureList);
-			classMap.clusterFlagSource.addFeatures(classMap.iconFeatureListWithoutStyle)
-		
-			
-			
 			classMap.vectorFlagSource.set("name","vectorFlagSource");
-
-
-			 classMap.vectorFlagLayer = new ol.layer.Vector({
-			//	source: classMap.vectorFlagSource,
-				source:classMap.vectorFlagSource,
-				maxResolution: 3,
-						
-				})	
 		
-			
-				function clusterStyle (clusterFeature) {
-			//	console.log("clusterStyle start");//cluster aktif oldugunda zoom-level a gore burasi surekli calisiyor dolayisi ile burda tum features lari donudurup setStyle i undefined cok mantikli bir is olmaz..zaten performans diye birsey kalmaz
-				if(Array.isArray(clusterFeature.get('features')))
-				{
-			//	console.log("clusterStyle has clusterFeature.get('features')");
-
-						const size = clusterFeature.get('features').length;
-						let style = styleCache[size];
-				
-					if(size == 1){
-					var selectedFeature = clusterFeature.get('features')[0];
-
-					if (!style) {
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 10,
-							stroke: new ol.style.Stroke({
-								color: '#fff',
-							}),
-							fill: new ol.style.Fill({
-								color: '#3399CC',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:1,
-							fill: new ol.style.Fill({
-								color: '#fff',
-							}),
-							}),
-						});
-						
-						}
-					
-					
-					}else if(size < 50){
-					
-					if (!style) {
-						
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 10,
-							stroke: new ol.style.Stroke({
-								color: '#fff',
-							}),
-							fill: new ol.style.Fill({
-								color: '#3399CC',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:1,
-							fill: new ol.style.Fill({
-								color: '#fff',
-							}),
-							}),
-						});
-						}
-						}else if(size < 100){
-					
-
-						
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 14,
-							stroke: new ol.style.Stroke({
-								color: '#000',
-							}),
-							fill: new ol.style.Fill({
-								color: '#03d3fc',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:1.4,
-							fill: new ol.style.Fill({
-								color: '#000',
-							}),
-							}),
-						});
-						
-						}
-						else if(size < 150 && size >= 100){
-						
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 16,
-							stroke: new ol.style.Stroke({
-								color: '#000',
-							}),
-							fill: new ol.style.Fill({
-								color: '#dffc03',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:1.6,
-							fill: new ol.style.Fill({
-								color: '#000',
-							}),
-							}),
-						});
-						
-						
-					
-					}else if(size < 200 && size >= 150) {
-					
-					
-					
-					style =  new ol.style.Style({
-					image: new ol.style.Circle({
-					radius: 18,
-					stroke: new ol.style.Stroke({
-						color: '#000',
-					}),
-					fill: new ol.style.Fill({
-						color: '#03fce8',
-					}),
-					}),
-					text: new ol.style.Text({
-					text: size.toString(),
-					scale:1.8,
-					fill: new ol.style.Fill({
-						color: '#000',
-					}),
-					}),
-				});
-					}else if(size < 250) {
-					
-					
-					style =  new ol.style.Style({
-					image: new ol.style.Circle({
-					radius: 20,
-					stroke: new ol.style.Stroke({
-						color: '#000',
-					}),
-					fill: new ol.style.Fill({
-						color: '#03fce8',
-					}),
-					}),
-					text: new ol.style.Text({
-					text: size.toString(),
-					scale:2,
-					fill: new ol.style.Fill({
-						color: '#000',
-					}),
-					}),
-				});
-					}
-					else if (size < 300){
-					
-					style =  new ol.style.Style({
-					image: new ol.style.Circle({
-					radius: 22,
-					stroke: new ol.style.Stroke({
-						color: '#000',
-					}),
-					fill: new ol.style.Fill({
-						color: '#fc0377',
-					}),
-					}),
-					text: new ol.style.Text({
-					text: size.toString(),
-					scale:2.2,
-					fill: new ol.style.Fill({
-						color: '#000',
-					}),
-					}),
-				});
-					
-					
-					}
-					else if(size > 300 && size <= 400){
-					
-					clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-					style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 26,
-							stroke: new ol.style.Stroke({
-								color: '#000',
-							}),
-							fill: new ol.style.Fill({
-								color: '#fce303',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:2.6,
-							fill: new ol.style.Fill({
-								color: '#000',
-							}),
-							}),
-						});
-
-						styleCache[size] = style;
-					}
-					else if(size > 400){
-					
-					clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-					style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 32,
-							stroke: new ol.style.Stroke({
-								color: '#000',
-							}),
-							fill: new ol.style.Fill({
-								color: '#03fc49',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:3.2,
-							fill: new ol.style.Fill({
-								color: '#000',
-							}),
-							}),
-						});
-
-						styleCache[size] = style;
-					}
-					else if(size > 500){
-					
-					clusterFeature.getGeometry().setCoordinates([829082.0210344432, 8201686.945177869]);
-					style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 36,
-							stroke: new ol.style.Stroke({
-								color: '#000',
-							}),
-							fill: new ol.style.Fill({
-								color: '#fc6f03',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:3.6,
-							fill: new ol.style.Fill({
-								color: '#000',
-							}),
-							}),
-						});
-
-						styleCache[size] = style;
-					}
-
-					
-					return style;
-				}
-					
-			}
-			
-		
-		/*	classMap.map.on("click", (e)=>{
-				console.log("classMap.map.on is working!!!!!!!!!!!")
-				console.log("event-coordinate: ", e.coordinate);
-		/*		console.log("event-coordinate: ", e.coordinate);
-				classMap.clusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => {
-				console.log("clickedFeatures: ",clickedFeatures);
-				if (clickedFeatures.length) {
-				  // Get clustered Coordinates
-				  const features = clickedFeatures[0].get('features');
-				  console.log("features-length: ",features.length);
-				 
-				if(Array.isArray(features)){
-					features.forEach(item=>{
-					console.log("feature-getKeys()::: ",item.getKeys())
-					
-					})
-					
-					//  console.log("munfeatures2:")
-					if (features.length > 1) {
-						const extent = ol.extent.boundingExtent(
-						features.map((r) => r.getGeometry().getCoordinates())
-						);
-						classMap.map.getView().fit(extent, {duration: 2500, padding: [100, 100, 100, 100]});
-					}
-					
-				} 
-				}
-			  }); */
-		//	})
-
-			//vectorFlagLayer
 			console.log("zoom-level: ",classMap.map.getView().getZoom());
-		/*	classMap.map.on('moveend', function(event) {
-			var zoomLevel = classMap.map.getView().getZoom();
-			console.log('New zoom level: ' + zoomLevel); */
-			//Zoomlevel 15 in altina dusunce sadece clustersource aktif oluyor ve vector source style ini undefined yapiyoruz nama burda cluster icindeki clusterFeature.get("features").length de length can not read properties oluyor onu da cozduk bu sekil hallolsa da her zoom level hareketi en az 20 kez tetikleniyor bu event ve her mouse hareketinde 20 kez tum features lar forEach ile donduruluyor bu surdurulemez baska bir cozum bulmak gerek
-		/*	if(zoomLevel < 15) {
-			classMap.vectorFlagSource.getFeatures().forEach(feature=>{
-				feature.setStyle(undefined)
-			})
-			} */
-			// Perform any necessary actions based on the new zoom level
-		/*	}); */
-		
+	
 		} catch (err)
 		{
 			console.log("ERROR: " + err.message);
 		}
 	}
-
-
-	//Burda yapamazsin cunku bu map olusumu tamamen asenkrondur burda map i alamayiz cunku map i olusturan datalar biraz gec geliyor...bizim createFlagLayer methodu icinde calisma zorunlulugumuz var... ok.. 
-//	console.log("classMap.map-outsideofCreateFlagLayer: ",classMap.map.getLayers());
 
 
 	function get_houseno(sObjectName)
