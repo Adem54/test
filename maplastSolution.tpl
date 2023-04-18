@@ -412,7 +412,7 @@
 					}					
 				},		*/
 			})
-			console.log("coordd: ",ol.proj.fromLonLat([parseFloat(CENTER_LONGITUDE), parseFloat(CENTER_LATITUDE)]))
+			
 			
 		//	 classMap.clusterFlagLayer = new ol.layer.AnimatedCluster({
 		classMap.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
@@ -692,23 +692,20 @@
 						//classMap.clusterFlagLayer.setVisible(false);
 						
 						classMap.map.on("click", (e)=>{
-							console.log("classMap.map.on is working!!!!!!!!!!!")
-							console.log("event-coordinate: ", e.coordinate);
+						
+							console.log("event-coordinate-CLUSTERRRRRRR: ", e.coordinate);
 						
 							console.log("features of clusterFlag; ",classMap.clusterFlagLayer.getSource().getSource().getFeatures().length)
 							classMap.clusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => {
-								console.log("clickedFeatures: ",clickedFeatures);
-								if (clickedFeatures.length) {
+								console.log("clickedFeaturesSSSSSS: ",clickedFeatures);//if it comes empty array, it means the point we checked is not cluster, if not it is cluster
+								if (clickedFeatures.length && clickedFeatures.length > 0) {
 									// Get clustered Coordinates
+									console.log("CLUSTER-POINT IS CLICKED")
 									const features = clickedFeatures[0].get('features');
 									console.log("features-length: ",features.length);
 								
 									if(Array.isArray(features)){
-											features.forEach(item=>{
-											console.log("feature-getKeys()::: ",item.getKeys())
-											
-											})
-											
+										
 											//  console.log("munfeatures2:")
 											if (features.length > 1) 
 											{
@@ -946,6 +943,7 @@
 		});
 
 		classMap.polygonLayer = new ol.layer.Vector({
+			name:"polygonLayer",
 			source: polygonSource, // Layer for the areas
 			//	maxResolution: 30
 		}); 
@@ -2183,8 +2181,8 @@
 	//createFlagLayer parametresine data, ajax tan asenkron bir sekilde geliyor ve map in olusturulmasi da asenkron islem sonucunda oldugu icin yani layer lar vs bilesenlerinin olusmasi yani. Ondan dolayi biz classMap.map i gidip disarda sennkron birsekilde kullanamayiz undefined aliriz...bunu bilelim.... Biz ancak classMap.map i ajax success durumundaki crateFlagLayer(data) parametrtesine ajax succes den gelen data verilerek invoke edildigikten sonra classMap.map i kullanabiliriz cunku o zaman arrtik olusmus oluyor...COOK ONEMLI BUNU BILMEK
 	function createFlagLayer(aObjectList)
 	{
-	console.log("createFlagLayer is working")
-	console.log("classMap.map-start: ",classMap.map.getLayers());
+	
+	
 		var iconScale = classMap.iFlagSize;
 		var iRotation = 0; //(iNumOrders * 0.3) - 0.3;
 
@@ -2600,22 +2598,6 @@
 						
 				})	
 		
-				if(classMap.map.getView().getZoom() < 16)
-				{
-					console.log("classMap.map.getView().getZoom() < 16  ");
-			
-			
-				
-				}else {
-				
-				console.log("classMap.map.getView().getZoom() IS NOT < 16  ");
-				
-
-				}
-
-				
-
-				console.log("LAYER-COUNT: ", classMap.map.getAllLayers().length)
 			
 				function clusterStyle (clusterFeature) {
 			//	console.log("clusterStyle start");//cluster aktif oldugunda zoom-level a gore burasi surekli calisiyor dolayisi ile burda tum features lari donudurup setStyle i undefined cok mantikli bir is olmaz..zaten performans diye birsey kalmaz
