@@ -387,8 +387,7 @@
 					// Draw all the cottages.
 					createFlagLayer(classMap.aFlags);
 			
-					console.log("Zoom-level: ",classMap.map.getView().getZoom());
-				
+					//create clusterSource by using vectorFlagSource
 					classMap.clusterForVectorFlagSource = new ol.source.Cluster
 					({
 						distance:250,
@@ -404,6 +403,7 @@
 					})
 			
 			
+				//create clusterFlagLayer
 				//	 classMap.clusterFlagLayer = new ol.layer.AnimatedCluster({
 					classMap.clusterFlagLayer = new ol.layer.Vector
 					({ // Layer for the flags.
@@ -412,9 +412,10 @@
 						style: clusterStyle,
 						animationDuration:1500,
 						minResolution:3,
+						zIndex:5,
 					});
 
-				
+				//create cluster style based on the cluster-size(cluster-number)
 					function getClusterStyleBySize(radius, strokeColor, fillColor, size, scale, textFillColor)
 					{
 						let style = new ol.style.Style
@@ -442,7 +443,9 @@
 					
 					const styleCache = {};
 					
-					function clusterStyle (clusterFeature) {
+					//create the clusterStyle-clusterFeature consist of many features and we get the clusters length or size by using get method and "features" keyword  const size = clusterFeature.get('features').length
+					function clusterStyle (clusterFeature) 
+					{
 						if(Array.isArray(clusterFeature.get('features')))
 						{	
 							const size = clusterFeature.get('features').length;
@@ -485,7 +488,8 @@
 						
 					classMap.map.addLayer(classMap.vectorFlagLayer);	
 					classMap.map.addLayer(classMap.clusterFlagLayer);	
-							
+					
+					//implement click-cluster functionality-when clicked the cluster,it make zoom-in and divide to other small clusters
 					classMap.map.on("click", (e)=>
 					{
 						classMap.clusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => 
@@ -510,7 +514,7 @@
 						}); 
 					});
 
-
+					//with debounce function, we reduce to change-resolution events calling. Normally, when the mouse wheel turns, change-resolution event triggers at least 10 times or more, it reduces the performance. In order to prevent this, we use debounce function and it makes change-resolution event triggers one or two times instead of at least 10 times
 					function debounce(func, delay) 
 					{
 						let timer;
@@ -530,23 +534,23 @@
 					function  onChangeZoomLevel(evt)
 					{
 						console.log("Zoom-levellll: ",classMap.map.getView().getZoom());
-							classMap.iZoom = classMap.map.getView().getZoom();
+						classMap.iZoom = classMap.map.getView().getZoom();
 
-							if (classMap.iZoom >= 18)
-							{
-								classMap.iFlagSize = classMap.iLargeSize;
-								createFlagLayer(classMap.aFlags);
-								
-							} else if (classMap.iZoom > 16 && classMap.iZoom < 18)
-							{
-								classMap.iFlagSize = classMap.iNormalSize;
-								createFlagLayer(classMap.aFlags);							
-							} else if (classMap.iZoom <= 16)
-							{
-								classMap.iFlagSize = classMap.iSmallSize;
-								createFlagLayer(classMap.aFlags);
-								
-							}	
+						if (classMap.iZoom >= 18)
+						{
+							classMap.iFlagSize = classMap.iLargeSize;
+							createFlagLayer(classMap.aFlags);
+							
+						} else if (classMap.iZoom > 16 && classMap.iZoom < 18)
+						{
+							classMap.iFlagSize = classMap.iNormalSize;
+							createFlagLayer(classMap.aFlags);							
+						} else if (classMap.iZoom <= 16)
+						{
+							classMap.iFlagSize = classMap.iSmallSize;
+							createFlagLayer(classMap.aFlags);
+							
+						}	
 					}
 
 					// Update the plowers

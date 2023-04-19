@@ -20,10 +20,6 @@
 	color: white !important;
 }
 
-.ol-control button {
-background-color: gray;
-} 
-
 
 </style>
 <script src="js/nativescript-webview-interface.js?v={{@version_js}}"></script>
@@ -31,9 +27,7 @@ background-color: gray;
 <script src="modules/module_map_util.js"></script>
 <script>
 
-console.log("test---ADEM---test");
 let sMapLayers='{{@mapLayers}}';
-console.log("sMapLayers: ", sMapLayers);
 let aMapLayers = JSON.parse(sMapLayers);
 
 let oClassMapLayer = new module_map_layers(aMapLayers);
@@ -250,17 +244,18 @@ var g_classMapClass = new function()
 	// When click on the map.
 	this.mapClick = (evt) => 
 	{
-		console.log("MAPCLICK------------")
 		this.m_oClusterFlagLayer.getFeatures(evt.pixel).then((clickedFeatures) => 
 		{ 
-			console.log("clickedFeatures: ",clickedFeatures);
-		
 			let feature = this.m_oMap.forEachFeatureAtPixel(evt.pixel,
 				function (feature, layer) {
 					return feature;
 				},
 				{
-					layerFilter:function(oLayer){
+				//filtering the layers relative to the overlay-popup
+				//don't implement clusterlayer to overlya-popup
+				//when user click the cluster over the arealayer, don't implement arealayer to overlay-popup, but if user click the arealayer without cluster, then implement arealayer
+					layerFilter:function(oLayer)
+					{
 						if(oLayer.get("name") == "m_oAreaLayer")
 						{
 							if(clickedFeatures.length && clickedFeatures.length > 0)
@@ -270,16 +265,17 @@ var g_classMapClass = new function()
 								{
 									
 									return (oLayer.get("name") !== "m_oClusterFlagLayer" && oLayer.get("name") !== "m_oAreaLayer");
-								}else{
+								}else
+								{
 								
 									return oLayer.get("name") !== "m_oClusterFlagLayer";
 								}
-							}else{
+							}else
+							{
 								return oLayer.get("name") !== "m_oClusterFlagLayer";
 							}
 						}  
-						return oLayer.get("name") !== "m_oClusterFlagLayer";
-						
+						return oLayer.get("name") !== "m_oClusterFlagLayer";				
 					}
 				}
 			);
@@ -1398,7 +1394,6 @@ var g_classMapClass = new function()
 	// Create the flag layer.
 	this.createFlagLayer = (aObjectList) =>
 	{
-	console.log("this.createFlagLayer-START-aObjectList: ", aObjectList.length);
 		// Clear the vecor layer.
 		this.m_vectorFlagSource.clear(true);
 
@@ -1423,128 +1418,7 @@ var g_classMapClass = new function()
 			});
 			// Pull all the flags onto the map.
 		this.m_vectorFlagSource.addFeatures(iconFeatureList);
-		console.log("this.createFlagLayer- m_oFlagLayerSource-Features-length: ",this.m_vectorFlagSource.getFeatures().length);	
-
-		/*	this.clusterForVectorFlagSource = new ol.source.Cluster({
-				name:"clusterForVectorFlagSource",
-				distance:50,
-				
-				//minDistance:parseInt(20,10),
-				source:this.m_vectorFlagSource,
-				//source:this.m_oFlagLayer.getSource(),
-			/*	geometryFunction: function(feature) {
-					if (this.m_oMap.getView().getZoom() > 16){
-						return null;
-					}else{
-				
-					return feature.getGeometry();
-						
-					}
 					
-				} , */
-				
-		//	}) 
-			console.log("this.createFlagLayer -  this.clusterForVectorFlagSource.LENGTH: ");
-			console.log("this.createFlagLayer -  this.clusterForVectorFlagSource.LENGTH: ",this.clusterForVectorFlagSource.getSource().getFeatures().length);
-
-			console.log("this.clusterForVectorFlagSource-RIGHT BEFORE-CLUSTERFLAGLAYER-CREATE:");
-			console.log(this.clusterForVectorFlagSource?.getSource()?.getFeatures()?.length);
-	/*		
-			if(this.m_oMap.getView().getZoom() < 16)
-			{
-			
-				this.m_oFlagLayer.setSource(this.clusterForVectorFlagSource);
-			}else
-			{
-				this.m_oFlagLayer.setSource(this.m_vectorFlagSource);
-			}
-			*/
-			
-
-			
-	/*		this.clusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
-					name:"clusterFlagLayer",
-					minResolution:3,
-					source: this.clusterForVectorFlagSource , 
-				//	style: clusterStyle
-				style: function (feature) {
-					const size = feature.get('features').length;
-					let style = styleCache[size];
-					if (!style) {
-					style = new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 10,
-						stroke: new ol.style.Stroke({
-							color: '#fff',
-						}),
-						fill: new ol.style.Fill({
-							color: '#3399CC',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						fill: new ol.style.Fill({
-							color: '#fff',
-						}),
-						}),
-					});
-					styleCache[size] = style;
-					}
-					return style;
-				},
-				});
-*/
-			
-				console.log("LAYERSCOUNTRIGHTBEFORE-ADD-CLUSTER: ",this.m_oMap.getAllLayers().length);
-
-			/*	this.m_oMap.getView().un('change:resolution', this.onChangeZoomLevel );
-
-				if(this.clusterForVectorFlagSource.getSource().getFeatures().length > 0){
-					this.m_oMap.removeLayer(this.clusterFlagLayer);
-					this.m_oMap.addLayer(this.clusterFlagLayer);
-				}  
-				
-				this.m_oMap.getView().on('change:resolution', this.onChangeZoomLevel );
-				
-			*/
-			//console.log("LAYERSCOUNTRIGHTAFTER-ADD-CLUSTER: ",this.m_oMap.getAllLayers().length);
-
-				function clusterStyle (clusterFeature)
-				{
-					if(Array.isArray(clusterFeature.get('features')))
-					{
-						const size = clusterFeature.get('features').length;
-						let style = styleCache[size];
-						var selectedFeature = clusterFeature.get('features')[0];
-						if (!style) 
-						{
-	
-						style =  new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 10,
-						stroke: new ol.style.Stroke({
-							color: '#fff',
-						}),
-						fill: new ol.style.Fill({
-							color: '#3399CC',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						fill: new ol.style.Fill({
-							color: '#fff',
-						}),
-						}),
-					});
-						
-						}
-					}
-				
-				}	
-
-				console.log("ZOOM-LEVEL: ",this.m_oMap.getView().getZoom());
-				
-			
 		}
 		catch (e)
 		{
@@ -1558,7 +1432,6 @@ var g_classMapClass = new function()
 	// Create the map.
 	this.createMap = (crd, sName) =>
 	{
-	console.log("this.createMap-START: ");
 		//let point = new ol.proj.transform([parseFloat(crd.longitude), parseFloat(crd.latitude)], 'EPSG:4326', 'EPSG:3857');
 		let point = ol.proj.fromLonLat([parseFloat(crd.longitude), parseFloat(crd.latitude)]);
 		let aFeatureList = [];
@@ -1637,13 +1510,12 @@ var g_classMapClass = new function()
 		
 		});
 
+		//create clusterSource by using vectorFlagSource
 		this.clusterForVectorFlagSource = new ol.source.Cluster({
 				name:"clusterForVectorFlagSource",
 				distance:50,
-				
 				//minDistance:parseInt(20,10),
 				source:this.m_vectorFlagSource,
-				//source:this.m_oFlagLayer.getSource(),
 			/*	geometryFunction: function(feature) {
 					if (this.m_oMap.getView().getZoom() > 16){
 						return null;
@@ -1659,108 +1531,77 @@ var g_classMapClass = new function()
 
 		var styleCache = {};
 
+		//create clusterFlagLayer
 		this.m_oClusterFlagLayer = new ol.layer.Vector({ // Layer for the flags.
 			name:"m_oClusterFlagLayer",
-		//	source: this.m_vectorFlagSource,
 			source: this.clusterForVectorFlagSource , 
 			minResolution: 4,
 			zIndex:10,
-		//	style: clusterStyle
-			style: function (feature) {
-					const size = feature.get('features').length;
-					let style = styleCache[size];
-				
-					if (size < 20)
-					{
-						if (!style) {
-						style = new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 14,
-							stroke: new ol.style.Stroke({
-								color: '#fff',
-							}),
-							fill: new ol.style.Fill({
-								color: '#3399CC',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:1.4,
-							fill: new ol.style.Fill({
-								color: '#fff',
-							}),
-							}),
-						});
-						styleCache[size] = style;
-						}
-					}else if(size >= 20 && size < 30 ){
-							
-						style =  new ol.style.Style({
-							image: new ol.style.Circle({
-							radius: 16,
-							stroke: new ol.style.Stroke({
-								color: '#000',
-							}),
-							fill: new ol.style.Fill({
-								color: '#dffc03',
-							}),
-							}),
-							text: new ol.style.Text({
-							text: size.toString(),
-							scale:1.6,
-							fill: new ol.style.Fill({
-								color: '#000',
-							}),
-							}),
-						});
-					}else if(size >= 30 && size < 50 ){
-							
-					style =  new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 18,
-						stroke: new ol.style.Stroke({
-							color: '#000',
-						}),
-						fill: new ol.style.Fill({
-							color: '#03fce8',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						scale:1.8,
-						fill: new ol.style.Fill({
-							color: '#000',
-						}),
-						}),
-					});
-				}else if(size >= 50){
-							
-				style =  new ol.style.Style({
-						image: new ol.style.Circle({
-						radius: 22,
-						stroke: new ol.style.Stroke({
-							color: '#000',
-						}),
-						fill: new ol.style.Fill({
-							color: '#fc0377',
-						}),
-						}),
-						text: new ol.style.Text({
-						text: size.toString(),
-						scale:2.2,
-						fill: new ol.style.Fill({
-							color: '#000',
-						}),
-						}),
-					});
-			}
-					
-					return style;
-				},
+			style: clusterStyle ,
 		}); 
 
-		
-		console.log("this.createMap - flaglayerfeatures-count: ", this.m_vectorFlagSource.getFeatures().length);
+		//create cluster style based on the cluster-size(cluster-number)
+		function getClusterStyleBySize(radius, strokeColor, fillColor, size, scale, textFillColor)
+		{
+			let style = new ol.style.Style
+				({
+					image: new ol.style.Circle({
+						radius,
+						stroke: new ol.style.Stroke({
+							color: strokeColor,
+						}),
+						fill: new ol.style.Fill({
+							color: fillColor,
+						}),
+					}),
+					text: new ol.style.Text({
+						text: size.toString(),
+						scale,
+						fill: new ol.style.Fill({
+							color: textFillColor,
+						}),
+					}),
+				});
+
+			return style;	
+		}
+
+		//create the clusterStyle-clusterFeature consist of many features and we get the clusters length or size by using get method and "features" keyword  const size = clusterFeature.get('features').length
+		function clusterStyle (clusterFeature) 
+		{
+			if(Array.isArray(clusterFeature.get('features')))
+			{	
+				const size = clusterFeature.get('features').length;
+				let style = styleCache[size];
+				let styleParams = [];	
+
+				let aClusterStyleData =	[
+					//#3399CC
+					
+					{iId:1, sTitle:"style2", bSize:size < 20, aStyleParams:[14, '#000', '#3399CC', size, 1.4, '#000' ] },
+					{iId:2, sTitle:"style1", bSize:size >= 20 && size < 30, aStyleParams: [16, '#000', '#dffc03', size, 1.6, '#000' ]},
+					{iId:3, sTitle:"style3", bSize:size >= 30 && size < 50, aStyleParams:[18, '#000', '#03fce8', size, 1.8, '#000' ] },
+					{iId:4, sTitle:"style4", bSize:size >= 50, aStyleParams:[22, '#000', '#fc0377', size, 2.2, '#000' ] },
+							
+				];
+			
+				let oFindStyleData = aClusterStyleData.find(style =>style.bSize);
+			//	console.log("oFindStyleData:", oFindStyleData);
+
+				if(oFindStyleData)
+				{	
+					let { iId, sTitle, bSize, aStyleParams } = oFindStyleData ;
+
+					if(!style)
+					{
+						style = getClusterStyleBySize(...aStyleParams);
+						styleCache[size] = style;
+					}
+				}			
+				return style;
+			}							
+		}
+
 		
 		this.m_oMyPosLayer =	new ol.layer.Vector({ // Layer for the position.
 			source: this.m_vectorPositonSource,
@@ -1778,8 +1619,7 @@ var g_classMapClass = new function()
 			positioning: 'bottom-left'
 		});
 
-		console.log("this.createMap-rightBeforeAdding this.m_oFlagLayer in Map:");
-//		console.log("this.createMap-rightBeforeAdding this.m_oFlagLayer in Map: ",this.m_oFlagLayer.getSource().getFeatures().length);
+
 		// Set the global map at the same time, to use in static functions.
 		this.m_oMap = new ol.Map({
 			layers: [ this.m_oMapLayer, this.m_oAreaLayer, this.m_oFlagLayer, this.m_oClusterFlagLayer , this.m_oMyPosLayer, this.m_oLayerFromMapLayerModule ],
@@ -1791,16 +1631,6 @@ var g_classMapClass = new function()
 			}),
 			view: this.m_oView
 		});
-	console.log("getFlagLayerName: ");
-	
-
-	this.m_oMap.getAllLayers().forEach(layer=>{
-		if(layer.get("name") == "m_oFlagLayer"){
-			console.log("layerName: ", layer.get("name"));
-		console.log("layer-features-number: ",layer?.getSource()?.getFeatures()?.length)
-		}
-	})	
-	
 		
 		g_overlayAreaName.setMap(this.m_oMap);
 
@@ -1847,72 +1677,36 @@ var g_classMapClass = new function()
 			  });
 		}*/		
 
-		console.log("this.createMap - this.m_aFlags: ", this.m_aFlags.length);
 	
 		this.onChangeZoomLevel = ()=>
 		{  
 			this.m_iZoom = parseInt(this.m_oMap.getView().getZoom());
-			console.log("onChangeZoomLevelLLLLLLLLLLLL", this.m_iZoom);
+			console.log("onChangeZoomLevel", this.m_iZoom);
 			if (this.m_iZoom >= 20)
 			{
-				console.log("this.m_iZoom >= 20");
 				this.m_iFlagSize = ICON_SIZE_HUGE;
 				this.createFlagLayer(this.m_aFlags);
 
 			}	
 			else if (this.m_iZoom >= 18 && this.m_iZoom < 20)
 			{
-				console.log("this.m_iZoom >= 18 && this.m_iZoom < 20");
-
 				this.m_iFlagSize = ICON_SIZE_LARGE;
 				this.createFlagLayer(this.m_aFlags);
 			}
 			else if (this.m_iZoom >= 16 && this.m_iZoom < 18)
 			{
-			console.log("this.m_iZoom >= 16 && this.m_iZoom < 18")
-				this.m_iFlagSize = ICON_SIZE_NORMAL;
-				console.log("this.m_iFlagSize-RIGHTBEFORE-THIS.CREATEFLAGlAYER:---------  ",this.m_iFlagSize);
+				this.m_iFlagSize = ICON_SIZE_NORMAL;	
 				this.createFlagLayer(this.m_aFlags);
 			}
 			else if (this.m_iZoom < 16)
-			{
-				console.log("this.m_iZoom < 16")
-				
+			{	
 				this.m_iFlagSize = ICON_SIZE_SMALL;
-			//	this.m_iFlagSize = .8;
 				this.createFlagLayer(this.m_aFlags);
 			} 
-
-
-				this.m_oMap.on("click", (e)=>{
-					console.log("tesTTTTT--MAPONCLICK-------")
-					console.log("event-coordinate: ", e.coordinate);
-					this.m_oClusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => 
-					{
-						console.log("clickedFeatures: ",clickedFeatures);
-						if (clickedFeatures.length) {
-						// Get clustered Coordinates
-						const features = clickedFeatures[0].get('features');
-						console.log("features-length: ",features.length);
-						
-						if(Array.isArray(features)){
-							//  console.log("munfeatures2:")
-							if (features.length > 1) {
-								const extent = ol.extent.boundingExtent(
-								features.map((r) => r.getGeometry().getCoordinates())
-								);
-								this.m_oMap.getView().fit(extent, {duration: 1500, padding: [100, 100, 100, 100]});
-							}
-							
-						} 
-						}
-				}); 
-			})   
-
-
 		}
-		
-	this.debounce = (func, delay)=>
+
+		//with debounce function, we reduce to change-resolution events calling. Normally, when the mouse wheel turns, change-resolution event triggers at least 10 times or more, it reduces the performance. In order to prevent this, we use debounce function and it makes change-resolution event triggers one or two times instead of at least 10 times
+		this.debounce = (func, delay)=>
 		{
 			let timer;
 			return function() 
@@ -1923,17 +1717,44 @@ var g_classMapClass = new function()
 				timer = setTimeout(() => func.apply(context, args), delay);
 			};
 		}
-								  
+									
 		const debouncedFunction = this.debounce(this.onChangeZoomLevel, 1000);
 		
-	   // this.createFlagLayer(this.m_aFlags);
+		// this.createFlagLayer(this.m_aFlags);
 		// Changeing resolution, change the icon size.
 		this.m_oMap.getView().on('change:resolution', debouncedFunction   );
+
+		//implement click-cluster functionality-when clicked the cluster,it make zoom-in and divide to other small clusters
+		this.m_oMap.on("click", (e)=>{
+			this.m_oClusterFlagLayer.getFeatures(e.pixel).then((clickedFeatures) => 
+			{
+				//console.log("clickedFeatures: ",clickedFeatures);
+				if (clickedFeatures.length) 
+				{
+					// Get clustered Coordinates
+					const features = clickedFeatures[0].get('features');
+					
+					if(Array.isArray(features))
+					{
+						//  console.log("munfeatures2:")
+						if (features.length > 1) 
+						{
+							const extent = ol.extent.boundingExtent(
+							features.map((r) => r.getGeometry().getCoordinates())
+							);
+							this.m_oMap.getView().fit(extent, {duration: 1500, padding: [100, 100, 100, 100]});
+						}
+						
+					} 
+				}
+			}); 
+		}) 
+		
+	
 
 		// change mouse cursor when over marker
        this.onPointerMove = (e) =>
 	   {
-			console.log("pointermove-dragging-working")
 			if (e.dragging) {
 				//$(this.m_element).popover('destroy');
 				return;
@@ -1948,7 +1769,7 @@ var g_classMapClass = new function()
 		this.m_oMap.on('pointermove', debouncePointermove);
 		// Set the map created flag.
 		this.bMapCreated = true;
-		};
+	};
 	
 	//
 	// Return the current logposition.
