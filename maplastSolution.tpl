@@ -454,16 +454,16 @@
 
 							let aClusterStyleData =	[
 								
-								{iId:1, sTitle:"style1", bSize:size < 50, aStyleParams: [10, '#fff', '#3399CC', size, 1, '#fff' ]},
-								{iId:2, sTitle:"style2", bSize:size < 100 && size > 50, aStyleParams:[14, '#000', '#03d3fc', size, 1.4, '#000' ] },
+								{iId:1, sTitle:"style1", bSize:size < 50, aStyleParams: [14, '#fff', '#3399CC', size, 1.4, '#fff' ]},
+								{iId:2, sTitle:"style2", bSize:size < 100 && size > 50, aStyleParams:[14, '#fff', '#3399CC', size, 1.4, '#fff'  ] },
 								{iId:3, sTitle:"style3", bSize:size < 150 && size >= 100, aStyleParams:[16, '#000', '#dffc03', size, 1.6, '#000' ] },
 								{iId:4, sTitle:"style4", bSize:size < 200 && size >= 150, aStyleParams:[18, '#000', '#03fce8', size, 1.8, '#000' ] },
 								{iId:5, sTitle:"style5", bSize:size > 200 && size < 250, aStyleParams:[20, '#000', '#03fce8', size, 2, '#000' ] },
-								{iId:6, sTitle:"style6", bSize:size > 250 && size < 300, aStyleParams:[22, '#000', '#fc0377', size, 2.2, '#000' ] },
+								{iId:6, sTitle:"style6", bSize:size > 250 && size < 300, aStyleParams:[22, '#fff', '#fc0377', size, 2.2, '#fff' ] },
 								{iId:7, sTitle:"style7", bSize:size > 300 && size <= 400, aStyleParams:[26, '#000', '#fce303', size, 2.6, '#000' ] },
 								{iId:8, sTitle:"style8", bSize:size > 400 && size < 500, aStyleParams:[32, '#000', '#03fc49', size, 3.2, '#000' ] },
-								{iId:9, sTitle:"style9", bSize:size > 500 && size < 1000, aStyleParams:[36, '#000', '#fc6f03', size, 3.6, '#000' ] },
-								{iId:10, sTitle:"style10", bSize:size >= 1000, aStyleParams:[40, '#000', '#fa344c', size, 3, '#000' ] },
+								{iId:9, sTitle:"style9", bSize:size > 500 && size < 1000, aStyleParams:[36, '#fff', '#fc6f03', size, 3.6, '#fff' ] },
+								{iId:10, sTitle:"style10", bSize:size >= 1000, aStyleParams:[40, '#fff', '#fa344c', size, 3, '#fff' ] },
 										
 							];
 						

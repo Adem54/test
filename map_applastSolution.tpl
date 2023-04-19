@@ -979,6 +979,7 @@ var g_classMapClass = new function()
 	
 	this.createMapFeature = (iObjectId, oObject) =>
 	{
+		
 		let iconFeature = null;
 		let bSkip = false;
 		let sArrivalTime = ""; // Default value.
@@ -1394,6 +1395,7 @@ var g_classMapClass = new function()
 	// Create the flag layer.
 	this.createFlagLayer = (aObjectList) =>
 	{
+		console.log("aObjectList: ",aObjectList);
 		// Clear the vecor layer.
 		this.m_vectorFlagSource.clear(true);
 
@@ -1406,6 +1408,7 @@ var g_classMapClass = new function()
 			// Loop through all the objects.
 			$.each(aObjectList, (iObjectId, oObject) =>
 			{
+			
 				let iconFeature = this.createMapFeature(iObjectId, oObject);
 				if (iconFeature!==false)
 				{
@@ -1428,7 +1431,6 @@ var g_classMapClass = new function()
 		return (true);
 	};
 
-	//
 	// Create the map.
 	this.createMap = (crd, sName) =>
 	{
@@ -1578,10 +1580,10 @@ var g_classMapClass = new function()
 				let aClusterStyleData =	[
 					//#3399CC
 					
-					{iId:1, sTitle:"style2", bSize:size < 20, aStyleParams:[14, '#000', '#3399CC', size, 1.4, '#000' ] },
+					{iId:1, sTitle:"style2", bSize:size < 20, aStyleParams:[14, '#fff', '#3399CC', size, 1.4, '#fff' ] },
 					{iId:2, sTitle:"style1", bSize:size >= 20 && size < 30, aStyleParams: [16, '#000', '#dffc03', size, 1.6, '#000' ]},
 					{iId:3, sTitle:"style3", bSize:size >= 30 && size < 50, aStyleParams:[18, '#000', '#03fce8', size, 1.8, '#000' ] },
-					{iId:4, sTitle:"style4", bSize:size >= 50, aStyleParams:[22, '#000', '#fc0377', size, 2.2, '#000' ] },
+					{iId:4, sTitle:"style4", bSize:size >= 50, aStyleParams:[22, '#fff', '#fc0377', size, 2.2, '#fff' ] },
 							
 				];
 			
@@ -1677,7 +1679,6 @@ var g_classMapClass = new function()
 			  });
 		}*/		
 
-	
 		this.onChangeZoomLevel = ()=>
 		{  
 			this.m_iZoom = parseInt(this.m_oMap.getView().getZoom());
